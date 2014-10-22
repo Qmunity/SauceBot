@@ -406,6 +406,7 @@ CREATE TABLE `newsconf` (
   `state` tinyint(1) DEFAULT '0',
   `seconds` int(11) DEFAULT '150',
   `messages` int(11) DEFAULT '15',
+  `prefix` varchar(255) DEFAULT '[News]',
   PRIMARY KEY (`chanid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
