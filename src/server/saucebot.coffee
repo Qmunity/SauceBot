@@ -294,7 +294,7 @@ class SauceBot
 
 
     # Update (upd):
-    #  * cookie: [REQ] Session cookie for authentication
+    #  * userID: [REQ] Session cookie for authentication
     #  ? chan  : [OPT] Source channel
     #  * type  : [REQ] Update type
     #
@@ -414,10 +414,9 @@ class SauceBot
     # * requireLogin: Whether to require the user to be logged in.
     # = an object { channel: <chan object>, user: <user object>, type: json.type }
     getWebData: (json, requireLogin) ->
-        {cookie, chan, type} = json
+        {userID, chan, type} = json
         
-        userID = auth.getUserID cookie
-        
+        #userID = auth.getUserID cookie
         if requireLogin
             throw new Error 'You are not logged in' unless userID?
         

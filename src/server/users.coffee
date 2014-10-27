@@ -22,14 +22,14 @@ class User
     constructor: (data) ->
         @id     = data.userid
         @name   = data.username
-        @global = data.global
+        @rank = data.rank
     
     
     # Returns whether the user is a global administrator.
     #
     # = whether the user is a global administrator
     isGlobal: ->
-        @global is 1
+        @rank is 8
 
         
     # Returns whether the user is a mod in the specified channel (or if they
