@@ -5,7 +5,7 @@ conf = require '../common/config'
 # Default values for the configurations.
 exports.DEFAULTS = {
     # Server version
-    Version: '3.3'
+    Version: '3.3-k4'
 
     DBDump: __dirname + '/../../db/my.sql'
     
