@@ -146,6 +146,7 @@ CREATE TABLE `commands` (
   `cmdtrigger` varchar(20) NOT NULL,
   `message` varchar(350) DEFAULT NULL,
   `level` int(11) DEFAULT '0',
+  `sub` int(1) DEFAULT '0',
   PRIMARY KEY (`chanid`,`cmdtrigger`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -718,7 +719,7 @@ CREATE TABLE `users` (
   `userid` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(30) DEFAULT NULL,
   `password` varchar(50) DEFAULT NULL,
-  `global` tinyint(1) DEFAULT '0',
+  `rank` tinyint(1) DEFAULT '0' COMMENT 'rankNames',
   `email` varchar(100) DEFAULT NULL,
   `verified` int(1) DEFAULT '0',
   PRIMARY KEY (`userid`),
