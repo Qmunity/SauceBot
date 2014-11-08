@@ -24,6 +24,7 @@ exports.strings = {
     'show-viewers': 'There are currently @1@ viewers!'
     'show-views'  : 'This channel has been viewed @1@ times!'
     'show-title'  : '@1@'
+    'show-followers' : 'This channel has @1@ followers'
 }
 
 # Set up oauth jar to access the twitch API
@@ -51,6 +52,7 @@ class TwitchAPI extends Module
     registerHandlers: ->
         @regCmd "game",    Sauce.Level.Mod, @cmdGame
         @regCmd "viewers", Sauce.Level.Mod, @cmdViewers
+        @regCmd "followers", Sauce.Level.Mod, @cmdFollowers
         @regCmd "title",   Sauce.Level.Mod, @cmdTitle
         @regCmd "sbfollow", Sauce.Level.Owner, @cmdFollow
         @regCmd "followme", Sauce.Level.Owner, @cmdFollowMe
@@ -74,6 +76,11 @@ class TwitchAPI extends Module
     cmdTitle: (user, args, bot) =>
         @getTitle @channel.name, (title) =>
             bot.say "[Title] " + @str('show-title', title)
+
+
+    cmdFollowers: (user, args, bot) =>
+        @getFollowers @channel.name, (followers) =>
+            bot.say "[Followers] " + @str('show-followers', followers)
 
 
     # !sbfollow <username> - Follows the channel (globals only)
@@ -108,16 +115,17 @@ class TwitchAPI extends Module
 
     # $(jtv game|viewers|views|title [, <channel>])
     varJTV: (user, args, cb) =>
-        usage = '[jtv game|viewers|views|title [, <channel>]]'
+        usage = '[jtv game|viewers|views|followers|title [, <channel>]]'
         unless args[0]?
             cb usage
         else
             chan = if args[1]? then strip(args[1]) else @channel.name
             switch args[0]
-                when 'game'    then @getGame    chan, cb
-                when 'viewers' then @getViewers chan, cb
-                when 'views'   then @getViews   chan, cb
-                when 'title'   then @getTitle   chan, cb
+                when 'game'      then @getGame      chan, cb
+                when 'viewers'   then @getViewers   chan, cb
+                when 'views'     then @getViews     chan, cb
+                when 'title'     then @getTitle     chan, cb
+                when 'followers' then @getFollowers chan, cb
                 else cb usage
          
          
@@ -130,7 +138,11 @@ class TwitchAPI extends Module
         @getTTVStreamData chan, (data) ->
             cb ((data["stream"] ? {})["viewers"] ? "N/A")
             
-            
+           
+    getFollowers: (chan, cb) ->
+        @getTTVData chan, (data) ->
+            cb(data["followers"] ? "N/A")
+
     getTitle: (chan, cb) ->
         @getTTVData chan, (data) ->
             cb (data["status"] ? "N/A")
