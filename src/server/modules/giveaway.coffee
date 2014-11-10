@@ -59,7 +59,7 @@ class GiveAway extends Module
 
     cmdGiveaway: (user, args, bot) =>
         unless args[0]?
-            return bot.say @str('err-usage', '!giveaway <max number>')
+            return bot.say @str('err-usage', '!giveaway [max number]')
 
         if @maxNumber > 0 and args[0] == "stop"
             @maxNumber = 0
@@ -69,7 +69,7 @@ class GiveAway extends Module
         num = parseInt(args[0])
 
         if num < 2 or isNaN num
-            return bot.say @str('err-too-low', num)
+            bot.say @str('err-too-low', num)
 
         @maxNumber = num
         @randomNumber = ~~(Math.random() * num)
