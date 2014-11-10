@@ -59,7 +59,7 @@ class GiveAway extends Module
 
     cmdGiveaway: (user, args, bot) =>
         unless args[0]?
-            return bot.say @str('err-usage', '!giveaway [max number]')
+            return bot.say @str('err-usage', '!giveaway <max number>')
 
         if @maxNumber > 0 and args[0] == "stop"
             @maxNumber = 0
