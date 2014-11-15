@@ -25,6 +25,7 @@ exports.strings = {
     'show-views'  : 'This channel has been viewed @1@ times!'
     'show-title'  : '@1@'
     'show-followers' : 'This channel has @1@ followers'
+    'show-hosts'  : 'This channel has @1@ hosts'
 }
 
 # Set up oauth jar to access the twitch API
@@ -40,24 +41,75 @@ ttvcache = new Cache (key, cb) ->
     oauth.get "/channels/#{key}", (resp, body) ->
         cb body
 
-jtvcache = new WebCache (key) -> "http://api.justin.tv/api/stream/list.json?channel=#{key}"
+hostUrl = (key) -> "http://chatdepot.twitch.tv/rooms/#{key}/hosts"
+
 
 strip = (msg) -> msg.replace /[^a-zA-Z0-9_]/g, ''
 
 class TwitchAPI extends Module
     load: ->
+        @config = new ConfigDTO @channel, 'twitchapiconf', ['showhosts', 'seconds']
         @registerHandlers()
-        
+    
+        @registerTimer()
+        @oldHosts = []
         
     registerHandlers: ->
+
         @regCmd "game",    Sauce.Level.Mod, @cmdGame
         @regCmd "viewers", Sauce.Level.Mod, @cmdViewers
-        @regCmd "followers", Sauce.Level.Mod, @cmdFollowers
+        @regCmd "follows", Sauce.Level.Mod, @cmdFollows
         @regCmd "title",   Sauce.Level.Mod, @cmdTitle
         @regCmd "sbfollow", Sauce.Level.Owner, @cmdFollow
         @regCmd "followme", Sauce.Level.Owner, @cmdFollowMe
         
         @regVar 'jtv', @varJTV
+
+    
+        # Register web interface update handlers
+        @regActs {
+            # TwitchApi.config([showhosts]*)
+            'config': @actConfig
+    }
+
+
+
+    # Action handler for "config"
+    # twitchAPI.config([showhosts]*)
+    actConfig: (user, params, res) =>
+        {showhosts} = params
+
+        # showhosts - 1 or 0
+        if showhosts?.length
+            val = if (val = parseInt state, 10) then 1 else 0
+            @config.add 'showhosts', val
+
+
+        # Seconds delay
+        if seconds?.length
+            val = parseInt seconds, 10
+            @config.add 'seconds', if isNaN val then 180 else val
+
+        res.send @config.get()
+
+    registerTimer: =>
+
+        setTimeout @checkHosts, 1000
+
+
+    checkHosts: =>
+        @getHosts @channel.name.toLowerCase(), (data) ->
+            console.log(data)
+            newChannels = []
+            for newChannel in data
+                #console.log(newChannel)
+                newChannels.add(newChannel['host'])
+                if @oldHosts.indexOf(newChannel['host']) == -1
+                    console.log(newChannel['host'] + " just started hosting")
+
+            @oldHosts = newChannels
+
+        @registerTimer()
 
 
     # !game - Print current game.
@@ -78,9 +130,9 @@ class TwitchAPI extends Module
             bot.say "[Title] " + @str('show-title', title)
 
 
-    cmdFollowers: (user, args, bot) =>
-        @getFollowers @channel.name, (followers) =>
-            bot.say "[Followers] " + @str('show-followers', followers)
+    cmdFollows: (user, args, bot) =>
+        @getFollows @channel.name, (follows) =>
+            bot.say "[Follows] " + @str('show-follows', follows)
 
 
     # !sbfollow <username> - Follows the channel (globals only)
@@ -115,7 +167,7 @@ class TwitchAPI extends Module
 
     # $(jtv game|viewers|views|title [, <channel>])
     varJTV: (user, args, cb) =>
-        usage = '[jtv game|viewers|views|followers|title [, <channel>]]'
+        usage = '[jtv game|viewers|views|follows|title [, <channel>]]'
         unless args[0]?
             cb usage
         else
@@ -125,7 +177,8 @@ class TwitchAPI extends Module
                 when 'viewers'   then @getViewers   chan, cb
                 when 'views'     then @getViews     chan, cb
                 when 'title'     then @getTitle     chan, cb
-                when 'followers' then @getFollowers chan, cb
+                when 'follows'   then @getFollows   chan, cb
+                when 'hosts'     then @getNumHosts  chan, cb
                 else cb usage
          
          
@@ -134,12 +187,13 @@ class TwitchAPI extends Module
             cb (data["game"] ? "N/A")
             
             
+
     getViewers: (chan, cb) ->
         @getTTVStreamData chan, (data) ->
             cb ((data["stream"] ? {})["viewers"] ? "N/A")
             
            
-    getFollowers: (chan, cb) ->
+    getFollows: (chan, cb) ->
         @getTTVData chan, (data) ->
             cb(data["followers"] ? "N/A")
 
@@ -157,12 +211,26 @@ class TwitchAPI extends Module
         ttvcache.get chan.toLowerCase(), (data) ->
             cb data ? {}
 
+    getHosts: (chan, cb) ->
+        @webFetcher chan.toLowerCase(), (data) ->
+            cb data['hosts'] ? {}
 
-    getJTVData: (chan, cb) ->
-        jtvcache.get chan.toLowerCase(), (data) ->
-            data = data?[0]
-            data = {} unless data?["channel"]?["login"]?.toLowerCase() is chan
-            cb data
+    getNumHosts: (chan, cb) ->
+        @webFetcher chan.toLowerCase(), (data) ->
+            data = data?['hosts']
+            l = Object.keys(data).length
+            cb l
+
+    
+    webFetcher: (key, cb) ->
+        url = hostUrl key
+        request {url: url, timeout: 2000}, (err, resp, json) =>
+            try
+                data = JSON.parse json
+                cb data
+            catch err
+                # Ignore
+                cb()
 
 
 exports.New = (channel) -> new TwitchAPI channel
