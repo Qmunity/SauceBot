@@ -6,7 +6,6 @@ db     = require './saucedb'
 users  = require './users'
 trig   = require './trigger'
 {Vars} = require './vars'
-{SauceEmitter} = require './saucebot'
 {
     ConfigDTO,
     HashDTO
@@ -61,8 +60,6 @@ class Channel
         @name    = data.name
         @status  = data.status
         @botName = data.bot
-
-        @bot = new SauceEmitter @name.toLowerCase()
 
         # All users who have spoken in the chat
         @usernames = {}
@@ -568,7 +565,7 @@ exports.handle = (chan, data) ->
 #
 # * finished: a callback taking the map of channel names to channels as its
 #             only argument 
-exports.load = (finished) ->
+exports.load = (SauceEmitter, finished) ->
     newChannels = {}
     newNames    = {}
 
@@ -576,6 +573,8 @@ exports.load = (finished) ->
         id     = chan.chanid
         name   = chan.name.toLowerCase()
         status = chan.status
+
+        emitter = new SauceEmitter name
 
         # If a channel with that ID is loaded, update it
         if oldName = names[id]
@@ -585,11 +584,13 @@ exports.load = (finished) ->
             channel.status  = status
             channel.name    = chan.name
             channel.botName = chan.bot
+            channel.bot     = emitter
             channel.loadChannelModules()
 
         # Otherwise, set up a new channel
         else
             channel = new Channel chan
+            channel.bot = emitter
 
         # Add channel to caches
         newChannels[name] = channel
