@@ -70,7 +70,7 @@ class TwitchAPI extends Module
         @regActs {
             # TwitchApi.config([showhosts]*)
             'config': @actConfig
-    }
+        }
 
 
 
@@ -103,8 +103,8 @@ class TwitchAPI extends Module
             newChannels = []
             for newChannel in data
                 #console.log(newChannel)
-                newChannels.add(newChannel['host'])
-                if @oldHosts.indexOf(newChannel['host']) == -1
+                newChannels.push(newChannel['host'])
+                if newChannel.host in @oldHosts
                     console.log(newChannel['host'] + " just started hosting")
 
             @oldHosts = newChannels
