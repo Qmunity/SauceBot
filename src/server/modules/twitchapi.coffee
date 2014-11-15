@@ -98,14 +98,16 @@ class TwitchAPI extends Module
 
 
     checkHosts: =>
-        @getHosts @channel.name.toLowerCase(), (data) ->
-            console.log(data)
+        @getHosts @channel.name.toLowerCase(), (data) =>
             newChannels = []
             for newChannel in data
-                #console.log(newChannel)
+                if !(newChannel['host'] in @oldHosts)
+                    #now. Get the viewers of said channels
+                    console.log(newChannel['host'] + " is now hosting")
+                    @getViewers newChannel['host'], (viewers) =>
+                        @say newChannel['host'] + " is now hosting to " + viewers + " viewers"
+                    
                 newChannels.push(newChannel['host'])
-                if newChannel.host in @oldHosts
-                    console.log(newChannel['host'] + " just started hosting")
 
             @oldHosts = newChannels
 
