@@ -167,37 +167,37 @@ class News extends Module
         @config.add 'prefix', args[0] if args[0]?
         bot.say '[News] ' + @str('current-prefix', @config.get 'prefix')
 
-    cmdNewsEnable: (user, args, bot) =>
+    cmdNewsEnable: (user, args) =>
         @config.add 'state', 1
         bot.say '[News] ' + @str('status-enabled')
 
 
-    cmdNewsDisable: (user, args, bot) =>
+    cmdNewsDisable: (user, args) =>
         @config.add 'state', 0
         bot.say '[News] ' + @str('status-disabled')
 
 
-    cmdNewsSeconds: (user, args, bot) =>
+    cmdNewsSeconds: (user, args) =>
         @config.add 'seconds', parseInt(args[0], 10) if args[0]?
         bot.say '[News] ' + @str('config-secs', @config.get 'seconds')
 
 
-    cmdNewsMessages: (user, args, bot) =>
+    cmdNewsMessages: (user, args) =>
         @config.add 'messages', parseInt(args[0], 10) if args[0]?
         bot.say '[News] ' + @str('config-messages', @config.get 'messages')
 
 
-    cmdNewsClear: (user, args, bot) =>
+    cmdNewsClear: (user, args) =>
         @news.clear()
         bot.say '[News] ' + @str('action-cleared')
 
 
-    cmdNewsAdd: (user, args, bot) =>
+    cmdNewsAdd: (user, args) =>
         @news.add args.join ' '
         bot.say '[News] ' + @str('action-added')
 
 
-    cmdNewsNext: (user, args, bot) =>
+    cmdNewsNext: (user, args) =>
         @getNext user, (news) =>
             prefix = @config.get 'prefix'
             news ?= prefix + ' ' + @str('err-no-news', '!news add <message>')
@@ -239,7 +239,7 @@ class News extends Module
     
     
     # Auto-news
-    handle: (user, msg, bot) ->
+    handle: (user, msg) ->
  
         # Print news if there is any
         @tickNews (msg) -> bot.say msg if msg?
