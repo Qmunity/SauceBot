@@ -708,6 +708,15 @@ CREATE TABLE `userkeys` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+DROP TABLE IF EXISTS `twitchapiconf`;
+CREATE TABLE `twitchapiconf` (
+    `channel` int(11) NOT NULL,
+    `showhosts` tinyint(1) NOT NULL,
+    PRIMARY KEY(`channel`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 --
 -- Table structure for table `users`
 --
