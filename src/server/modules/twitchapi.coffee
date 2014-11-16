@@ -105,7 +105,7 @@ class TwitchAPI extends Module
                     #now. Get the viewers of said channels
                     console.log(newChannel['host'] + " is now hosting")
                     @getViewers newChannel['host'], (viewers) =>
-                        @say newChannel['host'] + " is now hosting to " + viewers + " viewers"
+                        @bot.say newChannel['host'] + " is now hosting to " + viewers + " viewers"
                     
                 newChannels.push(newChannel['host'])
 

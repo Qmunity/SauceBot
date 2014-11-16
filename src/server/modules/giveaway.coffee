@@ -1,6 +1,9 @@
 # SauceBot Module: Giveaway
 io    = require '../ioutil'
 {Module} = require '../module'
+Sauce = require '../sauce'
+
+
 
 # Basic information
 exports.name        = 'Giveaway'
