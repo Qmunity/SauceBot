@@ -711,8 +711,9 @@ CREATE TABLE `userkeys` (
 
 DROP TABLE IF EXISTS `twitchapiconf`;
 CREATE TABLE `twitchapiconf` (
-    `channel` int(11) NOT NULL,
-    `showhosts` tinyint(1) NOT NULL,
+    `chanid` int(11) NOT NULL,
+    `hosts` tinyint(1) DEFAULT '1',
+    `seconds` int(11) DEFAULT '10',
     PRIMARY KEY(`channel`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
