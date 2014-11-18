@@ -714,7 +714,7 @@ CREATE TABLE `twitchapiconf` (
     `chanid` int(11) NOT NULL,
     `hosts` tinyint(1) DEFAULT '1',
     `seconds` int(11) DEFAULT '10',
-    PRIMARY KEY(`channel`)
+    PRIMARY KEY(`chanid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
