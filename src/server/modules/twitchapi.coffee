@@ -59,6 +59,7 @@ class TwitchAPI extends Module
     
         @registerTimer()
         @oldHosts = []
+        @firstTime = true
         @config.load()
         
     registerHandlers: ->
@@ -112,14 +113,15 @@ class TwitchAPI extends Module
             @getHosts @channel.name.toLowerCase(), (data) =>
                 newChannels = []
                 for newChannel in data
-                    if !(newChannel['host'] in @oldHosts)
+                    if !(newChannel['host'] in @oldHosts) and @firstTime == false
                         #now. Get the viewers of said channels
-                        @getViewers newChannel['host'], (viewers) =>
-                            @bot.say @str('str-hosted', newChannel['host'], viewers)
+                        @getViewers newChannel['host'], (viewers, channel) =>
+                            @bot.say @str('str-hosted', channel, viewers)
                     
                     newChannels.push(newChannel['host'])
 
                 @oldHosts = newChannels
+                @firstTime = true
 
         @registerTimer()
 
@@ -220,7 +222,7 @@ class TwitchAPI extends Module
 
     getViewers: (chan, cb) ->
         @getTTVStreamData chan, (data) ->
-            cb ((data["stream"] ? {})["viewers"] ? "N/A")
+            cb ((data["stream"] ? {})["viewers"] ? "N/A"), chan
             
     getFollows: (chan, cb) ->
         @getTTVData chan, (data) ->
