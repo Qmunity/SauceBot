@@ -239,10 +239,10 @@ class News extends Module
     
     
     # Auto-news
-    handle: (user, msg) ->
+    handle: (user, msg) =>
  
         # Print news if there is any
-        @tickNews (msg) -> @bot.say msg if msg?
+        @tickNews (msg) => @bot.say msg if msg?
 
 
 
