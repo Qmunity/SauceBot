@@ -31,6 +31,7 @@ exports.strings = {
     'status-disabled': 'Show Hosts is now disabled.'
 
     'config-secs'     : 'Hostshow minimum delay set to @1@ seconds.'
+    'str-hosted'      : 'Thanks @1@ for hosting us for @2@ viewers!'
 }
 
 # Set up oauth jar to access the twitch API
@@ -114,7 +115,7 @@ class TwitchAPI extends Module
                     if !(newChannel['host'] in @oldHosts)
                         #now. Get the viewers of said channels
                         @getViewers newChannel['host'], (viewers) =>
-                            @bot.say newChannel['host'] + " is now hosting to " + viewers + " viewers"
+                            @bot.say @str('str-hosted', newChannel['host'], viewers)
                     
                     newChannels.push(newChannel['host'])
 
