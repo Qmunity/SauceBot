@@ -165,7 +165,7 @@ class News extends Module
 
     cmdNewsPrefix: (user, args, bot) =>
         @config.add 'prefix', args[0] if args[0]?
-        bot.say '[News] ' + @str('current-prefix', @config.get 'prefix')
+        @bot.say '[News] ' + @str('current-prefix', @config.get 'prefix')
 
     cmdNewsEnable: (user, args) =>
         @config.add 'state', 1
