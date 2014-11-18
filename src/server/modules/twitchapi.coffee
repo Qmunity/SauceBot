@@ -121,7 +121,7 @@ class TwitchAPI extends Module
                     newChannels.push(newChannel['host'])
 
                 @oldHosts = newChannels
-                @firstTime = true
+                @firstTime = false
 
         @registerTimer()
 
