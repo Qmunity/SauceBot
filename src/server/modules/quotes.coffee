@@ -15,7 +15,10 @@ exports.description = 'Random quotes'
 exports.locked      = false
 
 exports.strings = {
-    'err-usage': "Usage: @1@" 
+    'err-usage': "Usage: @1@"
+    'quote'    : '"@1@" - @2@'
+    'no-quotes' : 'No quotes for @1@'
+    'invalid-id': 'This ID is invalid'
 }
 
 io.module '[Quotes] Init'
@@ -31,7 +34,6 @@ class Quotes extends Module
         @registerHandlers()
         
         @quoteDTO.load =>
-            console.log @quoteDTO.data
             for id, {quote, list} of @quoteDTO.data
                 @quotes[list] = [] unless @quotes[list]?
                 @quotes[list].push quote
@@ -66,8 +68,9 @@ class Quotes extends Module
         
 
     registerHandlers: ->
-
+        @regCmd "quote", Sauce.Level.Mod, @cmdRandomQuote
         @regCmd "quote add", Sauce.Level.Mod, @cmdAddQuote
+        @regCmd "quote edit", Sauce.Level.Mod, @cmdEditQuote
 
         @regVar 'quote', (user, args, cb) =>
             unless (list = args[0])? and (@hasQuotes list)
@@ -87,7 +90,6 @@ class Quotes extends Module
         quote['chanid'] = @channel.id
         quote['list'] = list.toLowerCase()
         quote['quote'] = msg
-        #console.log quote
         @quoteDTO.add null, quote
 
 
@@ -99,6 +101,21 @@ class Quotes extends Module
     getRandomQuote: (list) ->
         @getQuote list.toLowerCase(), ~~ (Math.random() * @numQuotes list)
     
+
+    cmdRandomQuote: (user, args) =>
+        if args.length == 0
+            #Get a random quote from a random list
+            keys = Object.keys(@quotes)
+            list = keys[~~(Math.random() * keys.length)]
+            return @bot.say @str('quote', @getRandomQuote(list), list)
+        
+        if args.length == 1
+            list = args[0].toLowerCase()
+            unless @quotes[list]?
+                return @bot.say @str('no-quotes', list)
+            
+            @bot.say @str('quote', @getRandomQuote(list), list)
+
     cmdAddQuote: (user, args) =>
         if args.length < 2
             return @bot.say @str('err-usage', '!quote add <list> <quote>')
@@ -109,5 +126,29 @@ class Quotes extends Module
 
         @addQuote(list, msg)
 
+    cmdEditQuote: (user, args) =>
+        if args.length < 3
+            return @bot.say @str('err-usage', '!quote edit <list> <id> <newquote>')
+        
+        list = args[0]
+        list = list.toLowerCase()
+
+        unless @quotes[list]?
+            return @bot.say @str('no-quotes', list)
+
+        id = parseInt(args[1], 10)
+        if isNaN id
+            return @bot.say @str('invalid-id')
+
+
+        quote = {}
+        quote['chanid'] = @channel.id
+        quote['id'] = id
+        quote['list'] = list
+        quote['quote'] = args[2]
+        @quoteDTO.add id, quote
+
+        @quotes = []
+        @quoteDTO.load()
 
 exports.New = (channel) -> new Quotes channel
