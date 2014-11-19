@@ -31,7 +31,6 @@ class Quotes extends Module
         @registerHandlers()
         
         @quoteDTO.load =>
-            console.log @quoteDTO.data
             for id, {quote, list} of @quoteDTO.data
                 @quotes[list] = [] unless @quotes[list]?
                 @quotes[list].push quote
