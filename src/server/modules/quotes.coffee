@@ -106,6 +106,9 @@ class Quotes extends Module
         if args.length == 0
             #Get a random quote from a random list
             keys = Object.keys(@quotes)
+            if keys == 0
+                return @bot.say @str('no-quotes', 'this channel')
+
             list = keys[~~(Math.random() * keys.length)]
             return @bot.say @str('quote', @getRandomQuote(list), list)
         
@@ -150,5 +153,8 @@ class Quotes extends Module
 
         @quotes = []
         @quoteDTO.load()
+
+
+
 
 exports.New = (channel) -> new Quotes channel
