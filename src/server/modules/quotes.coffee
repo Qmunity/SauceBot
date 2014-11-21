@@ -148,7 +148,8 @@ class Quotes extends Module
         quote['chanid'] = @channel.id
         quote['id'] = id
         quote['list'] = list
-        quote['quote'] = args[2]
+        args.split(0,2)
+        quote['quote'] = args.join(' ')
         @quoteDTO.add id, quote
 
         @quotes = []
