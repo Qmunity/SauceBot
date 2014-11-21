@@ -19,6 +19,7 @@ exports.strings = {
     'quote'    : '"@1@" - @2@'
     'no-quotes' : 'No quotes for @1@'
     'invalid-id': 'This ID is invalid'
+    'edited': "Quote has been edited"
 }
 
 io.module '[Quotes] Init'
@@ -148,13 +149,14 @@ class Quotes extends Module
         quote['chanid'] = @channel.id
         quote['id'] = id
         quote['list'] = list
-        args.split(0,2)
+        args.splice(0,2)
         quote['quote'] = args.join(' ')
         @quoteDTO.add id, quote
 
         @quotes = []
         @quoteDTO.load()
 
+        @bot.say @str('edited')
 
 
 
