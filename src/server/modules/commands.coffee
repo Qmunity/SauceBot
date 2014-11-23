@@ -187,7 +187,7 @@ class Commands extends Module
 
 
     # !(un)?set <command>  - Unset command
-    cmdUnset: (user, args) =>
+    cmdUnset: (user, args, say=true) =>
         unless args[0]?
             return @bot.say @str('err-usage', '!unset <name>') + '. ' + @str('err-only-forget-set', '!set')
 
@@ -196,7 +196,8 @@ class Commands extends Module
         a = @delCommandIgnoreCase cmd
         b = @delTriggerIgnoreCase cmd
 
-        @bot.say @str('action-unset', cmd) if a or b
+        if say
+            @bot.say @str('action-unset', cmd) if a or b
 
 
     # Removes a command (not case sensitive)
@@ -227,7 +228,7 @@ class Commands extends Module
         if (args.length is 1)
             return @cmdUnset user, args
         else
-            @cmdUnset user, args, { say: -> 0 }
+            @cmdUnset user, args, false
 
         cmd  = (args.splice 0, 1)[0]
         msg  = args.join ' '
@@ -246,7 +247,7 @@ class Commands extends Module
         if (args.length is 1)
             return @cmdUnset user, args
         else
-            @cmdUnset user, args, { say: -> 0 }
+            @cmdUnset user, args, false
         
 
         cmd  = (args.splice 0, 1)[0]
@@ -263,9 +264,9 @@ class Commands extends Module
 
         # !setsub <command>
         if(args.length is 1)
-            return @cmdUnset user, args, bot
+            return @cmdUnset user, args
         else
-            @cmdUnset user, args, { say: -> 0 }
+            @cmdUnset user, args, false
 
         cmd = (args.splice 0, 1)[0]
         msg = args.join ' '
