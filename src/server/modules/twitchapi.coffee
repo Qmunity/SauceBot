@@ -24,7 +24,7 @@ exports.strings = {
     'show-viewers': 'There are currently @1@ viewers!'
     'show-views'  : 'This channel has been viewed @1@ times!'
     'show-title'  : '@1@'
-    'show-followers' : 'This channel has @1@ followers'
+    'show-follows' : 'This channel has @1@ followers'
     'show-hosts'  : 'This channel has @1@ hosts'
 
     'status-enabled' : 'Show Hosts is now enabled.'
