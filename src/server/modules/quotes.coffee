@@ -154,7 +154,10 @@ class Quotes extends Module
         @quoteDTO.add id, quote
 
         @quotes = []
-        @quoteDTO.load()
+        
+        for id, {quote, list} of @quoteDTO.data
+            @quotes[list] = [] unless @quotes[list]?
+            @quotes[list].push quote
 
         @bot.say @str('edited')
 
