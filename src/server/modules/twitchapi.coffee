@@ -32,6 +32,7 @@ exports.strings = {
 
     'config-secs'     : 'Hostshow minimum delay set to @1@ seconds.'
     'str-hosted'      : 'Thanks @1@ for hosting us for @2@ viewers!'
+    'str-hosted-nv'      : 'Thanks @1@ for hosting us!'
 }
 
 # Set up oauth jar to access the twitch API
@@ -116,7 +117,10 @@ class TwitchAPI extends Module
                     if !(newChannel['host'] in @oldHosts) and @firstTime == false
                         #now. Get the viewers of said channels
                         @getViewers newChannel['host'], (viewers, channel) =>
-                            @bot.say @str('str-hosted', channel, viewers)
+                            if isNaN viewers
+                                @bot.say @str('str-hosted-nv', channel)
+                            else
+                                @bot.say @str('str-hosted', channel, viewers)
                     
                     newChannels.push(newChannel['host'])
 
