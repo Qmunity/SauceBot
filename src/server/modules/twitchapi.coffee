@@ -12,7 +12,7 @@ util    = require 'util'
 {Cache, WebCache   } = require '../cache'
 {Module            } = require '../module'
 {TokenJar          } = require '../../common/oauth'
-
+{spawn             } = require 'child_process'
 
 # Module description
 exports.name        = 'TwitchAPI'
@@ -48,7 +48,9 @@ ttvcache = new Cache (key, cb) ->
     oauth.get "/channels/#{key}", (resp, body) ->
         cb body
 
-hostUrl = (key) -> "http://chatdepot.twitch.tv/rooms/#{key}/hosts"
+
+hostUrl = (ip, key) -> "http://#{ip}/rooms/#{key}/hosts"
+
 
 
 strip = (msg) -> msg.replace /[^a-zA-Z0-9_]/g, ''
@@ -63,6 +65,13 @@ class TwitchAPI extends Module
         @firstTime = true
         @config.load()
         
+        # Get the ip address for chatdepot.twitch.tv
+        @chatDepotIP = ""
+        resolve = spawn 'resolveip', ['-s', 'chatdepot.twitch.tv']
+        resolve.stdout.on 'data', (data) => 
+            @chatDepotIP = data.toString().trim()
+
+       
     registerHandlers: ->
 
         @regCmd "game",    Sauce.Level.Mod, @cmdGame
@@ -121,7 +130,7 @@ class TwitchAPI extends Module
                                 @bot.say @str('str-hosted-nv', channel)
                             else
                                 @bot.say @str('str-hosted', channel, viewers)
-                    
+                
                     newChannels.push(newChannel['host'])
 
                 @oldHosts = newChannels
@@ -259,7 +268,7 @@ class TwitchAPI extends Module
 
     
     webFetcher: (key, cb) ->
-        url = hostUrl key
+        url = hostUrl @chatDepotIP, key
         request {url: url, timeout: 2000}, (err, resp, json) =>
             try
                 data = JSON.parse json
