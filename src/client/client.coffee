@@ -99,6 +99,15 @@ sauce.on 'say', (data) ->
     {chan, msg} = data
     twitch.say chan, msg
 
+
+sauce.on 'sub', (data) ->
+    {chan} = data
+    twitch.sayRaw chan, "/subscribers"
+
+sauce.on 'suboff', (data) ->
+    {chan} = data
+    twitch.sayRaw chan, "/subscribersoff"
+
 sauce.on 'ban', (data) ->
     {chan, user} = data
     twitch.sayRaw chan, "/ban #{user}"

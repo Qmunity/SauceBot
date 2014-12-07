@@ -282,6 +282,18 @@ CREATE TABLE `filterstate` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+
+DROP TABLE IF EXISTS `giveawayconf`;
+
+CREATE TABLE `giveawayconf` (
+    `chanid` int(11) NOT NULL DEFAULT '0',
+    `submode` tinyint(1) DEFAULT '1',
+    `checkfollow` tinyint(1) DEFAULT '1',
+    PRIMARY KEY (`chanid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
 --
 -- Table structure for table `helprequests`
 --

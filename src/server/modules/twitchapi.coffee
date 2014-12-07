@@ -86,7 +86,6 @@ class TwitchAPI extends Module
 
         @regVar 'jtv', @varJTV
 
-    
         # Register web interface update handlers
         @regActs {
             # TwitchApi.config([showhosts]*)

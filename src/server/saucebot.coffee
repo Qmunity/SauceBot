@@ -127,7 +127,13 @@ class SauceEmitter
     clear: (user) ->
         @timeout user, 2
 
-        
+    
+
+    # Starts subscriber only mode
+    submode: ->
+        broadcastType Type.Chat, 'sub',
+            chan: @channel
+
     # Sends a 'ban' message to the clients.
     # - Bans the target user
     #
