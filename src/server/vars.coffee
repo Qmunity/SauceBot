@@ -38,6 +38,8 @@ os         = require 'os'
 Sauce      = require './sauce'
 
 varRE  = /\$\(([-!a-zA-Z_0-9]+)(?:\s+([^)]+))?\)/
+varREB = /\$\[([-!a-zA-Z_0-9]+)(?:\s+([^)]+))?\]/
+
 varREg = /\$\(([-!a-zA-Z_0-9]+)(?:\s+([^)]+))?\)/g
 
 botStart = Date.now()
@@ -98,7 +100,7 @@ class Vars
                         
             
             time      : (user, args, cb) ->
-                cb tz.formatZone(args[0] ? 'Europe/Oslo')
+                cb tz.formatZone(args[0] ? 'Europe/Amsterdam')
 
         }
 
@@ -124,17 +126,24 @@ class Vars
    
  
     parse: (user, message, raw, cb) ->
-        if m = @checkVars message
+        if m = @checkSpecialVars message
             @replaceVar m, message, user, raw, (replaced) =>
                 @parse user, replaced, raw, cb
         else
-            cb message
+            if m = @checkVars message
+                @replaceVar m, message, user, raw, (replaced) =>
+                    @parse user, replaced, raw, cb
+            else
+                cb message
             
             
     checkVars: (message) ->
         return unless '$' in message
         varRE.exec message
-        
+       
+    checkSpecialVars: (message) ->
+        return unless '$' in message
+        varREB.exec message
         
     replaceVar: (m, msg, user, raw, cb) ->
         cmd  = m[1]
