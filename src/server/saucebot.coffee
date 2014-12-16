@@ -134,6 +134,20 @@ class SauceEmitter
         broadcastType Type.Chat, 'sub',
             chan: @channel
 
+    unsubmode: ->
+        broadcastType Type.Chat, 'suboff',
+            chan: @channel
+
+
+    slowmode: (seconds) ->
+        broadcastType Type.Chat, 'slow',
+            chan: @channel
+            seconds: seconds
+
+    unslowmode: ->
+        broadcastType Type.Chat, 'slowoff',
+            chan: @channel
+
     # Sends a 'ban' message to the clients.
     # - Bans the target user
     #

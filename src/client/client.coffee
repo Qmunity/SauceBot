@@ -108,6 +108,14 @@ sauce.on 'suboff', (data) ->
     {chan} = data
     twitch.sayRaw chan, "/subscribersoff"
 
+sauce.on 'slow', (data) ->
+    {chan, seconds} = data
+    twitch.sayRaw chan, "/slow #{seconds}"
+
+sauce.on 'slowoff', (data) ->
+    {chan} = data
+    twitch.sayRaw chan, "/slowoff"
+
 sauce.on 'ban', (data) ->
     {chan, user} = data
     twitch.sayRaw chan, "/ban #{user}"
