@@ -242,7 +242,7 @@ class Channel
         }
 
 
-    # Handles a message by passing it on to all loaded modules and tirggers.
+    # Handles a message by passing it on to all loaded modules and triggers.
     # 
     # * data: the contents of the message
     handle: (data) ->
