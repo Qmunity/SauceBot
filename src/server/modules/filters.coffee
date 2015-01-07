@@ -209,8 +209,25 @@ class Filters extends Module
         @regCmd 'ignoreturbo', Sauce.Level.Mod, @cmdIgnoreTurbo
 
 
-    # Filter list command handlers
+        @regVar 'timeout', @varTimeout
 
+
+
+
+    varTimeout: (user, args, cb) =>
+        usage = 'timeouti <name>[, seconds]'
+        unless args[0]?
+            cb usage
+        else
+            timeout = 600
+            if args.length == 2
+                timeout = parseInt args[1], 10
+
+            @bot.timeout args[0], timeout
+            cb ""
+
+
+    # Filter list command handlers
     cmdFilterAdd: (name, dto, args) =>
         value = args[0] if args[0]?
         if value?
