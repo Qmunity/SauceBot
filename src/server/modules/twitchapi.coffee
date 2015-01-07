@@ -84,7 +84,7 @@ class TwitchAPI extends Module
         @regCmd "showhosts off", Sauce.Level.Mod, @cmdHostShowDisable
         @regCmd "showhosts seconds", Sauce.Level.Mod, @cmdHostShowSeconds
 
-        @regVar 'jtv', @varJTV
+        @regVar 'twitch', @varTwitch
 
         # Register web interface update handlers
         @regActs {
@@ -210,8 +210,8 @@ class TwitchAPI extends Module
            
 
     # $(jtv game|viewers|views|title [, <channel>])
-    varJTV: (user, args, cb) =>
-        usage = '[jtv game|viewers|views|follows|title [, <channel>]]'
+    varTwitch: (user, args, cb) =>
+        usage = '[twitch game|viewers|views|follows|title [, <channel>]]'
         unless args[0]?
             cb usage
         else
