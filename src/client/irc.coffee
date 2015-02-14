@@ -83,7 +83,7 @@ class SauceIRC
             return io.debug "[IRC] Skipping: #{message}"
        
         if message.substring(0, 1) == "/" or message.substring(0, 1) == "."
-            @bot.say @channel, message
+            @bot.say @channel, message + ' ' + io.noise()
         else
             @bot.say @channel, io.noise() + ' ' + message
 
