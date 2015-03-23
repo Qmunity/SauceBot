@@ -93,13 +93,13 @@ class Counter extends Module
         @triggers = {}
 
 
-    addTrigger: (ctr) ->
+    addTrigger: (ctr, network) ->
         return if @triggers[ctr]?
 
         # Create a trigger that manages a counter
         @triggers[ctr] = trig.buildTrigger  this, ctr, Sauce.Level.Mod,
             (user, args) =>
-                @cmdCounter ctr, user, args
+                @cmdCounter ctr, user, args, network
 
         @channel.register @triggers[ctr]
 
@@ -110,14 +110,14 @@ class Counter extends Module
     #  !<counter> -<value>
     #  !<counter> =<value>
     #  !<counter> unset
-    cmdCounter: (ctr, user, args) ->
+    cmdCounter: (ctr, user, args, network) ->
         arg = args[0] ? ''
 
         if arg is 'unset'
-            res = @counterUnset ctr
+            res = @counterUnset ctr, network
 
         else if arg is ''
-            res = @counterCheck ctr
+            res = @counterCheck ctr, network
 
         else
             symbol = arg.charAt(0)
@@ -128,38 +128,38 @@ class Counter extends Module
 
             res = switch symbol
               when '='
-                @counterSet ctr, value
+                @counterSet ctr, value, network
               when '+'
                 value = 1 if valstr is ''
-                @counterAdd ctr, value
+                @counterAdd ctr, value, network
               when '-'
                 value = 1 if valstr is ''
-                @counterAdd ctr, 0-value
+                @counterAdd ctr, 0-value, network
 
 
-        @bot.say "[Counter] #{res}" if res?
+        @bot.say ("[Counter] #{res}" if res?), network
 
 
     # Handles:
     #  !<not-a-counter> =<value>
-    cmdNewCounter: (user, args) =>
+    cmdNewCounter: (user, args, bot, network) =>
         [ctr,arg] = args[0..1]
 
         value = parseInt(arg.slice(1), 10)
 
         unless isNaN value
-            res = @counterSet ctr, value
+            res = @counterSet ctr, value, network
 
-        @bot.say "[Counter] #{res}" if res?
+        @bot.say ("[Counter] #{res}" if res?), network
 
 
     # Handles:
     #  !<not-a-counter> +<value>
     #  !<not-a-counter> -<value>
-    cmdBadCounter: (user, args) =>
+    cmdBadCounter: (user, args, bot, network) =>
         ctr = args[0]
 
-        @bot.say "[Counter] " + @str('err-unknown-counter', ctr, '!' + ctr + ' =0')
+        @bot.say "[Counter] " + @str('err-unknown-counter', ctr, '!' + ctr + ' =0'), network
     
 
     # $(counter <name>)
@@ -201,7 +201,7 @@ class Counter extends Module
             return val
         else
             @counters.add name, 0
-            @addTrigger name
+            @addTrigger name, network
             return 0
 
 
@@ -214,7 +214,7 @@ class Counter extends Module
         if value?
             if !@counters.get(ctr)?
                 @counters.add ctr, value
-                @addTrigger ctr
+                @addTrigger ctr, network
 
                 return @str('action-created', ctr, value)
 

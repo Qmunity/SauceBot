@@ -174,18 +174,18 @@ class Filters extends Module
           do (filterName, filterList) =>
             # !<filterlist> add <value> - Adds value to filter list
             @regCmd "#{filterName} add"   , Sauce.Level.Mod,
-                (user, args) =>
-                    @cmdFilterAdd    filterName, filterList, args
+                (user, args, bot, network) =>
+                    @cmdFilterAdd    filterName, filterList, args, network
                     
             # !<filterlist> remove <value> - Removes value from filter list
             @regCmd "#{filterName} remove", Sauce.Level.Mod,
-                (user, args) =>
-                    @cmdFilterRemove filterName, filterList, args
+                (user, args, bot, network) =>
+                    @cmdFilterRemove filterName, filterList, args, network
 
             # !<filterlist> clear - Clears the filter list
             @regCmd "#{filterName} clear" , Sauce.Level.Mod,
-                (user, args) =>
-                    @cmdFilterClear  filterName, filterList, args
+                (user, args, bot, network) =>
+                    @cmdFilterClear  filterName, filterList, args, network
                     
 
         # Register filter state commands
@@ -193,8 +193,8 @@ class Filters extends Module
           do (filter) =>
             # !filter <filtername> on - Enables filter
             @regCmd "filter #{filter}" , Sauce.Level.Mod,
-                (user, args) =>
-                    @cmdFilter filter, (args[0] ? '')
+                (user, args, bot, network) =>
+                    @cmdFilter filter, (args[0] ? ''), network
             
 
         # Register misc commands
@@ -215,7 +215,7 @@ class Filters extends Module
 
 
     varTimeout: (user, args, cb) =>
-        usage = 'timeouti <name>[, seconds]'
+        usage = 'timeout <name>[, seconds]'
         unless args[0]?
             cb usage
         else
@@ -228,67 +228,67 @@ class Filters extends Module
 
 
     # Filter list command handlers
-    cmdFilterAdd: (name, dto, args) =>
+    cmdFilterAdd: (name, dto, args, network) =>
         value = args[0] if args[0]?
         if value?
             dto.add value.toLowerCase()
-            @bot.say "[Filter] " + @str('list-' +  name) + " - " + @str('action-added')
+            @bot.say "[Filter] " + @str('list-' +  name) + " - " + @str('action-added'), network
         else
-            @bot.say "[Filter] " + @str('err-no-value') + ' ' + @str('err-usage', "!" + name + " add <value>")
+            @bot.say "[Filter] " + @str('err-no-value') + ' ' + @str('err-usage', "!" + name + " add <value>"), network
     
     
-    cmdFilterRemove: (name, dto, args) =>
+    cmdFilterRemove: (name, dto, args, network) =>
         value = args[0] if args[0]?
         if value?
             dto.remove value.toLowerCase()
-            @bot.say "[Filter] " + @str('list-' +  name) + " - " + @str('action-removed')
+            @bot.say "[Filter] " + @str('list-' +  name) + " - " + @str('action-removed'), network
         else
-            @bot.say "[Filter] " + @str('err-no-value') + ' ' + @str('err-usage', "!" + name + " remove <value>")
+            @bot.say "[Filter] " + @str('err-no-value') + ' ' + @str('err-usage', "!" + name + " remove <value>"), network
             
             
-    cmdFilterClear: (name, dto, args) =>
+    cmdFilterClear: (name, dto, args, network) =>
         dto.clear()
-        @bot.say "[Filter] " + @str('list-' +  name) + " - " + @str('action-cleared')
+        @bot.say "[Filter] " + @str('list-' +  name) + " - " + @str('action-cleared'), network
 
 
     # Filter state command handlers
 
-    cmdFilter: (filter, action) =>
+    cmdFilter: (filter, action, network) =>
         switch action
             when 'on'
-                @cmdFilterEnable filter
+                @cmdFilterEnable filter, network
             when 'off'
-                @cmdFilterDisable filter
+                @cmdFilterDisable filter, network
             else
-                @cmdFilterShow filter
+                @cmdFilterShow filter, network
 
 
-    cmdFilterEnable: (filter) =>
+    cmdFilterEnable: (filter, network) =>
         @states.add filter, 1
-        @bot.say "[Filter] " + @str('filter-enabled', @str('filter-' + filter))
+        @bot.say "[Filter] " + @str('filter-enabled', @str('filter-' + filter)), network
 
     
-    cmdFilterDisable: (filter) =>
+    cmdFilterDisable: (filter, network) =>
         @states.add filter, 0
-        @bot.say "[Filter] " + @str('filter-disabled', @str('filter-' + filter))
+        @bot.say "[Filter] " + @str('filter-disabled', @str('filter-' + filter)), network
 
 
-    cmdFilterShow: (filter) =>
+    cmdFilterShow: (filter, network) =>
         if @states.get filter
-            @bot.say "[Filter] " + @str('filter-is-enabled', @str('filter-' + filter), '!filter ' + filter + ' off')
+            @bot.say "[Filter] " + @str('filter-is-enabled', @str('filter-' + filter), '!filter ' + filter + ' off'), network
         else
-            @bot.say "[Filter] " + @str('filter-is-disabled', @str('filter-' + filter), '!filter ' + filter + ' on')
+            @bot.say "[Filter] " + @str('filter-is-disabled', @str('filter-' + filter), '!filter ' + filter + ' on'), network
             
     
     # Misc command handlers
     
     # !regulars remove <name> - Removes a regular.
-    cmdRemoveRegular: (user, args) =>
+    cmdRemoveRegular: (user, args, bot, network) =>
         unless (name = args[0])?
-            return @bot.say "[Filter] " + @str('err-error') + ' ' + @str('err-usage', '!regulars remove <username>')
+            return @bot.say "[Filter] " + @str('err-error') + ' ' + @str('err-usage', '!regulars remove <username>'), network
             
         @removeRegular name
-        @bot.say @str('regulars-removed', name)
+        @bot.say @str('regulars-removed', name), network
 
 
     # Removes a user from the regulars list.
@@ -310,16 +310,16 @@ class Filters extends Module
 
 
     # !regulars add <name> - Adds a regular.
-    cmdAddRegular: (user, args) =>
+    cmdAddRegular: (user, args, bot, network) =>
         unless (name = args[0])?
-            return @bot.say @str('err-error') + ' ' + @str('err-usage', '!regulars add <username>')
+            return @bot.say @str('err-error') + ' ' + @str('err-usage', '!regulars add <username>'), network
             
         @addRegular name
-        @bot.say @str('regulars-added', name)
+        @bot.say @str('regulars-added', name), network
 
 
     # !permit <name> - Permits a user.
-    cmdPermitUser: (user, args) =>
+    cmdPermitUser: (user, args, bot, network) =>
         permitLength = 3 * 60 # 3 minutes
         permitTime   = time.now() + permitLength
         
@@ -344,7 +344,7 @@ class Filters extends Module
             if oldPermit > time.now()
                 return
 
-            @bot.say msg
+            @bot.say msg, network
 
             # Unban after 2 seconds to avoid the spam filter.
             setTimeout =>
@@ -352,13 +352,13 @@ class Filters extends Module
             , 2000
 
         else
-            @bot.say "[Filter] " + @str('err-no-target') + ' ' + @str('err-usage', '!permit <username>')
+            @bot.say "[Filter] " + @str('err-no-target') + ' ' + @str('err-usage', '!permit <username>'), network
 
 
     # !clearstrikes <name> - Clears strikes from a user
-    cmdClearStrikes: (user, args) =>
+    cmdClearStrikes: (user, args, bot, network) =>
         unless (target = args[0])?
-            @bot.say "[Filter] " + @str('err-no-target') + ' ' + @str('err-usage', '!clearstrikes <username>')
+            @bot.say "[Filter] " + @str('err-no-target') + ' ' + @str('err-usage', '!clearstrikes <username>'), network
             return
 
         target = (target.replace /[^a-zA-Z0-9_]+/g, '').toLowerCase()
@@ -368,50 +368,50 @@ class Filters extends Module
         else
             msg = @str('clear-no-strikes', target)
 
-        @bot.say '[Filter] ' + msg
+        @bot.say '[Filter] ' + msg, network
     
 
     # !p <name> - Purges (timeout for 1 second) user
-    cmdPurge: (user, args) =>
+    cmdPurge: (user, args, network) =>
         unless (target = args[0])?
-            @bot.say "[Filter] " + @str('err-no-target') + ' ' + @str('err-usage', '!p <username>')
+            @bot.say "[Filter] " + @str('err-no-target') + ' ' + @str('err-usage', '!p <username>'), network
             return
 
         target = (target.replace /[^a-zA-Z0-9_]+/g, '').toLowerCase()
-        @bot.timeout target, 1
+        @bot.timeout target, 1, network
         setTimeout =>
-            @bot.say "[Filter] " + @str('action-purge', target)
+            @bot.say "[Filter] " + @str('action-purge', target), network
         , 4000
 
 
     # !ignoreturbo [on/off] - Toggles whether to ignore turbo users
-    cmdIgnoreTurbo: (user, args) =>
-        @handleIgnoreCommand user, args, 'turbo'
+    cmdIgnoreTurbo: (user, args, bot, network) =>
+        @handleIgnoreCommand user, args, 'turbo', network
 
 
     # !ignoresubs [on/off] - Toggles whether to ignore subscribers
-    cmdIgnoreSubs: (user, args) =>
-        @handleIgnoreCommand user, args, 'subs'
+    cmdIgnoreSubs: (user, args, bot, network) =>
+        @handleIgnoreCommand user, args, 'subs', network
 
 
-    handleIgnoreCommand: (user, args, key) ->
+    handleIgnoreCommand: (user, args, key, network) ->
         unless (state = args[0])?
             if @config.get "ignore#{key}"
-                @bot.say "[Filter] " + @str('filter-is-enabled', "ignore#{key}", "!ignore#{key} off")
+                @bot.say "[Filter] " + @str('filter-is-enabled', "ignore#{key}", "!ignore#{key} off"), network
             else
-                @bot.say "[Filter] " + @str('filter-is-disabled', "ignore#{key}", "!ignore#{key} on")
+                @bot.say "[Filter] " + @str('filter-is-disabled', "ignore#{key}", "!ignore#{key} on"), network
             return
         
         if state is 'on'
             @config.add "ignore#{key}", 1
-            @bot.say "[Filter] " + @str('ignore-enable-' + key)
+            @bot.say "[Filter] " + @str('ignore-enable-' + key), network
 
         else if state is 'off'
             @config.add "ignore#{key}", 0
-            @bot.say "[Filter] " + @str('ignore-disable-' + key)
+            @bot.say "[Filter] " + @str('ignore-disable-' + key), network
 
         else
-            @bot.say "[Filter] " + @str('err-usage', "!ignore#{key} on/off")
+            @bot.say "[Filter] " + @str('err-usage', "!ignore#{key} on/off"), network
 
 
     # Custom update handler to avoid super messy switches.
@@ -520,29 +520,29 @@ class Filters extends Module
         @states.load()
         
 
-    checkFilters: (name, msg) ->
+    checkFilters: (name, msg, network, msguuid) ->
         msg = msg.trim()
         lower = msg.toLowerCase()
         
         # Badword filter
         if @states.get('words')  and @containsBadword lower
-            return @handleStrikes name, @str('on-word', name), true, msg
+            return @handleStrikes name, @str('on-word', name), true, msg, network, msguuid
             
         # Single-emote filter
         if @states.get('emotes') and @isSingleEmote lower
-            return @handleStrikes name, @str('on-emote', name), false, msg
+            return @handleStrikes name, @str('on-emote', name), false, msg, network, msguuid
             
         # Caps filter
         if @states.get('caps')   and @isMostlyCaps msg
-            return @handleStrikes name, @str('on-caps', name), false, msg
+            return @handleStrikes name, @str('on-caps', name), false, msg, network, msguuid
             
         # URL filter
         if                           @containsBadURL lower
-            return @handleStrikes name, @str('on-url', name), true, msg
+            return @handleStrikes name, @str('on-url', name), true, msg, network, msguuid
             
             
         
-    handleStrikes: (name, response, clear, msg) ->
+    handleStrikes: (name, response, clear, msg, network, msguuid) ->
         strikes = @updateStrikes(name)
         
         strikemsg = @str ('warning-' + (if strikes < 0 then 0 else if strikes > 3 then 3 else strikes))
@@ -551,16 +551,24 @@ class Filters extends Module
         
         if      strikes is 1
             # First strike: verbal warning + optional clear
-            @bot.clear name if clear
+            if clear
+                @bot.clear name, network, msguuid
             
         else if strikes is 2
             # Second strike: 10 minute timeout
-            @bot.timeout name, 60 * 10
+            @bot.timeout name, 60 * 10, network, msguuid
         
-        else if strikes > 2
-            # Third+ strike: 8 hour timeout
-            @bot.timeout name, 8 * 60 * 60
+        else if strikes is 3
+            # Third strike: 8 hour timeout
+            @bot.timeout name, 8 * 60 * 60, network, msguuid
             
+        else if strikes is 4
+            # Fourth strike: 1 day ban
+            @bot.timeout name, 24 * 60 * 60, network, msguuid
+
+        else if strikes > 4
+            # Fifth+ stike: 1 week ban
+            @bot.timeout name, 7 * 24 * 60 * 60. network, msguuid
             
         reasons.timestamp @channel.name, name, response, msg
             
@@ -568,7 +576,7 @@ class Filters extends Module
             
         # Delay the response to avoid the JTV flood filter
         setTimeout =>
-            @bot.say response
+            @bot.say response, network
         , 4250
     
     
@@ -598,7 +606,7 @@ class Filters extends Module
             return false
         
     
-    handle: (user, msg) ->
+    handle: (user, msg, network, uuid) ->
         {name, op} = user
         
         if op or @isIgnored(name) then return
@@ -608,7 +616,7 @@ class Filters extends Module
             if time.now() > permitTime then delete @permits[lc] else return
             
         
-        @checkFilters name, msg
+        @checkFilters name, msg, network, uuid
         
 
     isIgnored: (name) ->

@@ -117,7 +117,7 @@ class TwitchAPI extends Module
         setTimeout @checkHosts, @config.get('seconds') * 1000
 
 
-    checkHosts: =>
+    checkHosts: (network) =>
         if @config.get 'hosts'
             @getHosts @channel.name.toLowerCase(), (data) =>
                 newChannels = []
@@ -126,9 +126,9 @@ class TwitchAPI extends Module
                         #now. Get the viewers of said channels
                         @getViewers newChannel['host'], (viewers, channel) =>
                             if isNaN viewers
-                                @bot.say @str('str-hosted-nv', channel)
+                                @bot.say @str('str-hosted-nv', channel), network
                             else
-                                @bot.say @str('str-hosted', channel, viewers)
+                                @bot.say @str('str-hosted', channel, viewers), network
                 
                     newChannels.push(newChannel['host'])
 
@@ -141,61 +141,61 @@ class TwitchAPI extends Module
         @config.save()
 
     # !showHost on - Enable host show
-    cmdHostShowEnable: (user, args) =>
+    cmdHostShowEnable: (user, args, bot, network) =>
         @config.add('hosts', 1)
-        @bot.say '[HostShow] ' + @str('status-enabled')
+        @bot.say '[HostShow] ' + @str('status-enabled'), network
 
     # !showHost off - Disable host show
-    cmdHostShowDisable: (user, args) =>
+    cmdHostShowDisable: (user, args, bot, network) =>
         @config.add('hosts', 0)
-        @bot.say '[HostShow] ' + @str('status-disabled')
+        @bot.say '[HostShow] ' + @str('status-disabled'), network
 
     # !showHost seconds - How long the polling should last
-    cmdHostShowSeconds: (user, args) =>
+    cmdHostShowSeconds: (user, args, bot, network) =>
         @config.add 'seconds', parseInt(args[0], 10) if args[0]?
-        @bot.say '[HostShow] ' + @str('config-secs', @config.get 'seconds')
+        @bot.say '[HostShow] ' + @str('config-secs', @config.get 'seconds'), network
 
 
     # !game - Print current game.
-    cmdGame: (user, args) =>
+    cmdGame: (user, args, bot, network) =>
         @getGame @channel.name, (game) =>
-            @bot.say '[Game] ' + @str('show-game', @channel.name, game)
+            @bot.say '[Game] ' + @str('show-game', @channel.name, game), network
             
 
     # !viewers - Print number of viewers.
-    cmdViewers: (user, args) =>
+    cmdViewers: (user, args, bot, network) =>
         @getViewers @channel.name, (viewers) =>
-            @bot.say "[Viewers] " + @str('show-viewers', viewers)
+            @bot.say "[Viewers] " + @str('show-viewers', viewers), network
             
 
     # !title - Print current title.
-    cmdTitle: (user, args) =>
+    cmdTitle: (user, args, bot, network) =>
         @getTitle @channel.name, (title) =>
-            @bot.say "[Title] " + @str('show-title', title)
+            @bot.say "[Title] " + @str('show-title', title), network
 
 
-    cmdFollows: (user, args, bot) =>
+    cmdFollows: (user, args, bot, network) =>
         @getFollows @channel.name, (follows) =>
-            bot.say "[Follows] " + @str('show-follows', follows)
+            bot.say "[Follows] " + @str('show-follows', follows), network
 
 
     # !sbfollow <username> - Follows the channel (globals only)
-    cmdFollow: (user, args) =>
+    cmdFollow: (user, args, bot, network) =>
         return unless user.global
 
         name = args[0]
         if name = @followUser(name)
-            @bot.say "Followed #{name}"
+            @bot.say "Followed #{name}", network
         else
-            @bot.say "Usage: !sbfollow <username>"
+            @bot.say "Usage: !sbfollow <username>", network
 
 
     # !followme - Follows channel
-    cmdFollowMe: (user, args) =>
+    cmdFollowMe: (user, args, bot, network) =>
         if @followUser(user.name)
-            @bot.say "Followed #{user.name}"
+            @bot.say "Followed #{user.name}", network
         else
-            @bot.say "Invalid username. Please contact a SauceBot administrator."
+            @bot.say "Invalid username. Please contact a K4Bot administrator.", network
 
 
     followUser: (name) ->
@@ -204,7 +204,7 @@ class TwitchAPI extends Module
         return unless name
         
         io.debug "Following #{name}"
-        oauth.put "/users/saucebot/follows/channels/#{name}", (resp, body) ->
+        oauth.put "/users/k4bot/follows/channels/#{name}", (resp, body) ->
             io.debug "Followed #{name}"
         return name
            

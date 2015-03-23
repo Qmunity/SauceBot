@@ -85,7 +85,7 @@ class Quotes extends Module
     getQuote : (list, idx) -> @quotes[list]?[idx]
     
 
-    addQuote: (list, msg)  =>
+    addQuote: (list, msg, network)  =>
         list = list.toLowerCase()
         quote = {}
         quote['chanid'] = @channel.id
@@ -97,32 +97,32 @@ class Quotes extends Module
         @quotes[list] = [] unless @quotes[list]?
         @quotes[list].push msg
 
-        @bot.say "Quote added"
+        @bot.say "Quote added", network
 
     getRandomQuote: (list) ->
         @getQuote list.toLowerCase(), ~~ (Math.random() * @numQuotes list)
     
 
-    cmdRandomQuote: (user, args) =>
+    cmdRandomQuote: (user, args, bot, network) =>
         if args.length == 0
             #Get a random quote from a random list
             keys = Object.keys(@quotes)
             if keys == 0
-                return @bot.say @str('no-quotes', 'this channel')
+                return @bot.say @str('no-quotes', 'this channel'), network
 
             list = keys[~~(Math.random() * keys.length)]
-            return @bot.say @str('quote', @getRandomQuote(list), list)
+            return @bot.say @str('quote', @getRandomQuote(list), list), network
         
         if args.length == 1
             list = args[0].toLowerCase()
             unless @quotes[list]?
-                return @bot.say @str('no-quotes', list)
+                return @bot.say @str('no-quotes', list), network
             
-            @bot.say @str('quote', @getRandomQuote(list), list)
+            @bot.say @str('quote', @getRandomQuote(list), list), network
 
-    cmdAddQuote: (user, args) =>
+    cmdAddQuote: (user, args, bot, network) =>
         if args.length < 2
-            return @bot.say @str('err-usage', '!quote add <list> <quote>')
+            return @bot.say @str('err-usage', '!quote add <list> <quote>'), network
 
         list = args[0]
         args.splice(0,1)
@@ -130,19 +130,19 @@ class Quotes extends Module
 
         @addQuote(list, msg)
 
-    cmdEditQuote: (user, args) =>
+    cmdEditQuote: (user, args, cmd, network) =>
         if args.length < 3
-            return @bot.say @str('err-usage', '!quote edit <list> <id> <newquote>')
+            return @bot.say @str('err-usage', '!quote edit <list> <id> <newquote>'), network
         
         list = args[0]
         list = list.toLowerCase()
 
         unless @quotes[list]?
-            return @bot.say @str('no-quotes', list)
+            return @bot.say @str('no-quotes', list), network
 
         id = parseInt(args[1], 10)
         if isNaN id
-            return @bot.say @str('invalid-id')
+            return @bot.say @str('invalid-id'), network
 
 
         quote = {}
@@ -159,7 +159,7 @@ class Quotes extends Module
             @quotes[list] = [] unless @quotes[list]?
             @quotes[list].push quote
 
-        @bot.say @str('edited')
+        @bot.say @str('edited'), network
 
 
 

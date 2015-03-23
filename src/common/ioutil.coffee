@@ -37,8 +37,8 @@ log = (level, tag, message) ->
 
 
 # Logs a message
-exports.say = (chan, message) ->
-    log(Level.Normal, '#' + chan.blue, message)
+exports.say = (network, chan, message) ->
+    log(Level.Normal, '#' + chan.blue + "@" + network.green, message)
 
 
 # Logs a debug message

@@ -141,7 +141,7 @@ class Server
         @serv = net.createServer (stream) =>
             @handleConnection stream
 
-        @serv.listen port, 'localhost'
+        @serv.listen port, '0.0.0.0'
         
         io.socket "Server started on port #{port}"
         

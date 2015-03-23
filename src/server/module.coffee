@@ -204,10 +204,10 @@ class Module
 
 
     # Prints a module name prefixed string to the bot
-    say: (bot, msgs...) ->
+    say: (bot, network, msgs...) ->
         name = @str('name') ? @name
         str  = msgs.join ' '
-        bot.say "[#{name}] #{str}"
+        bot.say "[#{name}] #{str}", network
 
 
     logEvent: (user, action, object, oldVal, newVal) ->

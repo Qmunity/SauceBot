@@ -46,11 +46,11 @@ class Chat extends Module
             mentions.write new Date(), @channel.name, user.name, msg
 
     load:->
-        userpicker = (user, args) =>
+        userpicker = (user, args, bot, network) =>
             if args[0]?
-                @cmdPickNUsers args[0]
+                @cmdPickNUsers args[0], network
             else
-                @cmdPickOneUser()
+                @cmdPickOneUser network
 
         @regCmd "pickuser" , Sauce.Level.Mod, userpicker
         @regCmd "pickusers", Sauce.Level.Mod, userpicker
@@ -92,12 +92,12 @@ class Chat extends Module
         }
 
 
-    cmdPickOneUser: =>
+    cmdPickOneUser: (network) =>
         rand  = @getRandomUser()
-        @bot.say "[Users] " + @str('users-pick-one', rand)
+        @bot.say "[Users] " + @str('users-pick-one', rand), network
 
 
-    cmdPickNUsers: (num) =>
+    cmdPickNUsers: (num, network) =>
         num = parseInt(num)
 
         if num < 2 or isNaN num
@@ -112,7 +112,7 @@ class Chat extends Module
             num = names.length
 
         picked = (names[i] for i in [0..num-1]).join ', '
-        @bot.say "[Users] " + @str('users-pick-n', num, picked)
+        @bot.say "[Users] " + @str('users-pick-n', num, picked), network
         
         
     getRandomUser: ->

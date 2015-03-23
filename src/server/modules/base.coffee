@@ -146,31 +146,31 @@ class Base extends Module
 
 
     # !<botname> - Prints bot name and version.
-    cmdBot: (user, args) =>
+    cmdBot: (user, args, bot, network) =>
         botName = (@channel.botName ? 'SauceBot')
-        @bot.say "[#{botName}] #{Sauce.Server.Name} v#{Sauce.Version} by @RavnTM - www.saucebot.com"
+        @bot.say "[#{botName}] #{Sauce.Server.Name} v#{Sauce.Version} by K4Unl - www.k4bot.k-4u.nl", network
 
 
     # !<botname> join - Prints info on how to get the bot
-    cmdBotJoin: (user, args) =>
+    cmdBotJoin: (user, args, bot, network) =>
         botName = (@channel.botName ? 'SauceBot')
-        @bot.say "[#{botName}] #{user.name}: Visit www.saucebot.com to apply for #{botName}! Good luck! :-)"
+        @bot.say "[#{botName}] #{user.name}: Talk to K4Unl (@K_4Unl) to apply for #{botName}! Good luck! :-)", network
 
 
     # !test - Prints test command and user level.
-    cmdTest: (user, args) =>
-        @bot.say "[Test] #{user.name} - #{Sauce.LevelStr user.op}"
+    cmdTest: (user, args, bot, network) =>
+        @bot.say "[Test] #{user.name} - #{Sauce.LevelStr user.op}", network
 
 
     # !saucetime - Prints the time in SauceBot's timezone.
-    cmdSaucetime: (user, args) =>
-        @bot.say "[SauceTime] #{tz.formatZone 'Europe/Oslo', '%H:%M:%S UTC %z'}"
+    cmdSaucetime: (user, args, bot, network) =>
+        @bot.say "[SauceTime] #{tz.formatZone 'Europe/Amsterdam', '%H:%M:%S UTC %z'}", network
 
 
     # !help <message> - Requests help from a SauceBot admin.
-    cmdHelp: (user, args) =>
+    cmdHelp: (user, args, bot, network) =>
         if args.length is 0
-            @bot.say "[Help] " + @str('help-basic', '!help <message>')
+            @bot.say "[Help] " + @str('help-basic', '!help <message>'), network
             return
 
         db.addData 'helprequests', ['chanid', 'time', 'user', 'reason'], [[
@@ -179,67 +179,67 @@ class Base extends Module
             user.name.toLowerCase(),
             args.join ' '
         ]]
-        @bot.say "[Help] " + @str('help-requested')
+        @bot.say "[Help] " + @str('help-requested'), network
 
 
     # !eval <expr> - Prints the result of evaluating <expr> as a var string.
-    cmdEval: (user, args) =>
+    cmdEval: (user, args, bot, network) =>
         return unless args
         raw = args.join ' '
         @channel.vars.parse user, raw, raw, (parsed) =>
-            @bot.say "[Eval] #{parsed}"
+            @bot.say "[Eval] #{parsed}", network
 
 
     # !verify <code> - Attempts to verify the user.
-    cmdVerify: (user, args) =>
+    cmdVerify: (user, args, bot, network) =>
         unless args[0]?
-            return @bot.say "[Verify] " + @str('verify-syntax', '!verify <code>')
+            return @bot.say "[Verify] " + @str('verify-syntax', '!verify <code>'), network
 
         verify user.name, args[0], (verified) =>
             msgcode = if verified then 'verify-ok' else 'verify-err'
-            @bot.say "[Verify] " + @str(msgcode, user.name)
+            @bot.say "[Verify] " + @str(msgcode, user.name), network
 
 
     # !calc <expr> - Prints the result of evaluating <expr> as a mathematical expression.
-    cmdCalc: (user, args) =>
+    cmdCalc: (user, args, bot, network) =>
         return unless args
         txt = args.join ''
         math = txt.replace(/[^()\d*\/+-=\w]/g, '')
         try
-            @bot.say math + "=" + (vm.runInContext math, @sandbox, "#{@channel.name}.vm").toFixed(2)
+            @bot.say math + "=" + (vm.runInContext math, @sandbox, "#{@channel.name}.vm").toFixed(2), network
         catch error
-            @bot.say "[Calc] " + @str('math-invalid', math)
+            @bot.say "[Calc] " + @str('math-invalid', math), network
 
 
     # !mode - Prints a help string for the mode commands.
-    cmdMode: (user, args) =>
-        @bot.say "[Mode] " + @str('usage-invalid', '!mode [modonly|quiet] [on|off]')
+    cmdMode: (user, args, bot, network) =>
+        @bot.say "[Mode] " + @str('usage-invalid', '!mode [modonly|quiet] [on|off]'), network
 
 
     # !mode modonly on/off - Enables/disables mod only mode.
-    cmdModeModonly: (user, args) =>
+    cmdModeModonly: (user, args, bot, network) =>
         switch args[0]
             when 'on'
                 @channel.setModOnly true
-                @bot.say '[Mode] ' + @str('mod-enabled') + ' ' + @str('usage-disable', '!mode modonly off')
+                @bot.say '[Mode] ' + @str('mod-enabled') + ' ' + @str('usage-disable', '!mode modonly off'), network
             when 'off'
                 @channel.setModOnly false
-                @bot.say '[Mode] ' + @str('mod-disabled') + ' ' + @str('usage-enable', '!mode modonly on')
+                @bot.say '[Mode] ' + @str('mod-disabled') + ' ' + @str('usage-enable', '!mode modonly on'), network
             else
-                @bot.say '[Mode] ' + @str('usage-invalid', '!mode modonly (on|off)')
+                @bot.say '[Mode] ' + @str('usage-invalid', '!mode modonly (on|off)'), network
 
 
     # !mode quiet on/off - Enables/disables quiet mode.
-    cmdModeQuiet: (user, args) =>
+    cmdModeQuiet: (user, args, bot, network) =>
         switch args[0]
             when 'on'
                 @channel.setQuiet true
-                @bot.say '[Mode] ' + @str('quiet-enabled') + ' ' + @str('usage-disable', '!mode quiet off')
+                @bot.say '[Mode] ' + @str('quiet-enabled') + ' ' + @str('usage-disable', '!mode quiet off'), network
             when 'off'
                 @channel.setQuiet false
-                @bot.say '[Mode] ' + @str('quiet-disabled') + ' ' + @str('usage-enable', '!mode quiet on')
+                @bot.say '[Mode] ' + @str('quiet-disabled') + ' ' + @str('usage-enable', '!mode quiet on'), network
             else
-                @bot.say '[Mode] ' + @str('usage-invalid', '!mode quiet (on|off)')
+                @bot.say '[Mode] ' + @str('usage-invalid', '!mode quiet (on|off)'), network
                  
 
 exports.New = (channel) ->

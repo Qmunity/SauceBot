@@ -77,53 +77,53 @@ class GiveAway extends Module
 
         res.send @config.get()
 
-    handle: (user, msg) ->
+    handle: (user, msg, network) ->
         if @maxNumber > 0
             m = /(\d+)/.exec(msg)
             if (m and parseInt(m[1], 10) == @randomNumber)
                 @randomNumber = 0
                 @maxNumber = 0
                 if(@config.get 'checkfollow')
-                    @isFollowing user, (isFollowing) =>
+                    @isFollowing user, network, (isFollowing) =>
                         if isFollowing
-                            @bot.say @str('str-guessed-following', user.name, m[1])
+                            @bot.say @str('str-guessed-following', user.name, m[1]), network
                         else
-                            @bot.say @str('str-guessed-not-following', user.name, m[1])
+                            @bot.say @str('str-guessed-not-following', user.name, m[1]), network
                         if @config.get 'submode'
-                            @bot.submode()
+                            @bot.submode network
                 else
-                    @bot.say @str('str-guessed', user.name, m[1])
+                    @bot.say @str('str-guessed', user.name, m[1]), network
                     if @config.get 'submode'
-                        @bot.submode()
+                        @bot.submode network
 
 
 
 
-    cmdSubOn: (user, args) =>
+    cmdSubOn: (user, args, bot, network) =>
         @config.add 'submode', 1
-        @bot.say '[Giveaway] ' + @str('sub-enabled')
+        @bot.say '[Giveaway] ' + @str('sub-enabled'), network
 
-    cmdSubOff: (user, args) =>
+    cmdSubOff: (user, args, bot, network) =>
         @config.add 'submode', 0
-        @bot.say '[Giveaway] ' + @str('sub-disabled')
+        @bot.say '[Giveaway] ' + @str('sub-disabled'), network
 
-    cmdFollowCheckOn: (user, args) =>
+    cmdFollowCheckOn: (user, args, bot, network) =>
         @config.add 'checkfollow', 1
-        @bot.say '[Giveaway] ' + @str('follow-enabled')
+        @bot.say '[Giveaway] ' + @str('follow-enabled'), network
 
-    cmdFollowCheckOff: (user, args) =>
+    cmdFollowCheckOff: (user, args, bot, network) =>
         @config.add 'checkfollow', 0
-        @bot.say '[Giveaway] ' + @str('follow-disabled')
+        @bot.say '[Giveaway] ' + @str('follow-disabled'), network
 
-    cmdGiveawayStop: (user, args) =>
+    cmdGiveawayStop: (user, args, bot, network) =>
         if @maxNumber > 0
             @maxNumber = 0
             @randomNumber = 0
-            @bot.say @str('str-stop-giveaway')
+            @bot.say @str('str-stop-giveaway'), network
 
-    cmdGiveaway: (user, args) =>
+    cmdGiveaway: (user, args, bot, network) =>
         unless args[0]?
-            return @bot.say @str('err-usage', '!giveaway <max number>')
+            return @bot.say @str('err-usage', '!giveaway <max number>'), network
 
         num = parseInt(args[0], 10)
 
@@ -135,10 +135,10 @@ class GiveAway extends Module
 
         io.debug "The number is: " + @randomNumber
 
-        return @bot.say @str('str-giveaway', num)
+        return @bot.say @str('str-giveaway', num), network
 
 
-    isFollowing: (user, cb) ->
+    isFollowing: (user, network, cb) ->
         @webFetcher user.name, (data) ->
             if data
                 if data['status'] == '404'

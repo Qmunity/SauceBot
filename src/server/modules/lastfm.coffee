@@ -51,15 +51,15 @@ class LastFM extends Module
                     cb song
         
         
-    cmdLastFM: (user, args) =>
+    cmdLastFM: (user, args, bot, network) =>
         unless args[0]?
-            return @bot.say @str('err-usage', '!lastfm <username>')
+            return @bot.say @str('err-usage', '!lastfm <username>'), network
             
         # Filter out bad characters
         name = args[0].replace /[^-a-zA-Z_0-9]/g, ''
             
         @getSong name, (song) =>
-            @bot.say "[last.fm] " + @str('playing-now', name, song)
+            @bot.say "[last.fm] " + @str('playing-now', name, song), network
             
     
     getSong: (name, cb) ->

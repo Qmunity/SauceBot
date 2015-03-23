@@ -162,6 +162,7 @@ sauce.on 'connect', ->
     sauce.emit 'register', {
         type: 'chat'
         name: 'SauceClient'
+        network: 'twitch'
     }
 
 # Terminal stuff

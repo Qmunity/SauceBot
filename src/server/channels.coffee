@@ -245,7 +245,7 @@ class Channel
     # Handles a message by passing it on to all loaded modules and triggers.
     # 
     # * data: the contents of the message
-    handle: (data) ->
+    handle: (data, network ,msguuid) ->
         user = @getUser data.user, data.op
         # Cache the op level of the user from the data we get
         @usernames[user.name.toLowerCase()] = user.op
@@ -259,13 +259,13 @@ class Channel
             if trigger.test(msg) and (user.op >= trigger.oplevel and (!@isModOnly() or user.op >= Sauce.Level.Mod))
                 if (trigger.sub and @isSub(user.name)) or !trigger.sub
                     args = trigger.getArgs msg
-                    trigger.execute user, args, @bot
+                    trigger.execute user, args, @bot, network, msguuid
                     # We only want to run one trigger, so break here
                     break
         
         # Now pass the message on the our modules        
         for module in @modules
-            module.handle user, msg
+            module.handle user, msg, network, msguuid
 
 
     # register(trigger)   - Registers a Trigger
@@ -553,10 +553,10 @@ class ChannelUpdateHandler
 # * chan: the name of the channel receiving the message
 # * data: the data of the message
 # * bot: the bot instance responsible for delivering the message
-exports.handle = (chan, data) ->
+exports.handle = (chan, data, network, msguuid) ->
     channel = channels[chan]
     if channel?
-        channel.handle data
+        channel.handle data, network, msguuid
     else
         io.debug "No such channel: #{chan}"
 

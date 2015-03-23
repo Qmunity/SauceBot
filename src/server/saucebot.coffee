@@ -41,11 +41,24 @@ Type = {
     Chat: 'chat'
 }
 
+Network = {
+    Unknown: 'NaN'
+    Twitch: 'twitch'
+    Beam  : 'beam'
+}
+
 # Broadcasts a message to all clients with a certain type
 broadcastType = (type, cmd, data) ->
     graph.count "output.#{cmd}"
     server.forAll (socket) ->
         if socket.type is type
+            socket.emit cmd, data
+
+# Broadcasts a message to all clients with a certain type and network
+broadcastTypeNetwork = (type, network, cmd, data) ->
+    graph.count "output.#{cmd}"
+    server.forAll (socket) ->
+        if(socket.type is type and socket.network is network)
             socket.emit cmd, data
 
 # Loads user data
@@ -94,13 +107,14 @@ class SauceEmitter
     # Say (say):
     #  * msg : [REQ] Message to send
     #
-    say: (message) ->
-        io.say @channel, message
+    say: (message, network) ->
+        io.say network, @channel, message
         message = message.replace /\s+/g, ' '
         message = message.split(/</).join('&lt;')
         message = message.split(/>/).join('&gt;')
         
-        broadcastType Type.Chat, 'say',
+            
+        broadcastTypeNetwork Type.Chat, network, 'say',
             chan: @channel
             msg : message
 
@@ -112,11 +126,12 @@ class SauceEmitter
     #  * msg  : [REQ] Target user to time out
     #  * time : [OPT] Time out length in seconds
     #
-    timeout: (user, time) ->
-        broadcastType Type.Chat, 'timeout',
+    timeout: (user, time, network, msguuid) ->
+        broadcastTypeNetwork Type.Chat, network, 'timeout',
             chan: @channel
             user: user
             time: time
+            uuid: msguuid
             
     # Sends a 'timeout' message to the clients.
     # - Times out the target user for 2 seconds.
@@ -124,8 +139,8 @@ class SauceEmitter
     # Time out (timeout):
     #  * msg : [REQ] Target user to time out
     #
-    clear: (user) ->
-        @timeout user, 2
+    clear: (user, network, msguuid) ->
+        @timeout user, 2, network, msguuid
 
     
 
@@ -154,8 +169,8 @@ class SauceEmitter
     # Ban (ban):
     #  * msg : [REQ] Target user to ban
     #
-    ban: (user) ->
-        broadcastType Type.Chat, 'ban',
+    ban: (user, network=Network.Twitch) ->
+        broadcastTypeNetwork Type.Chat, network, 'ban',
             chan: @channel
             user: user
 
@@ -166,8 +181,8 @@ class SauceEmitter
     # Unban (unban):
     #  * msg : [REQ] Target user to unban
     #
-    unban: (user) ->
-        broadcastType Type.Chat, 'unban',
+    unban: (user, network=Network.Twitch) ->
+        broadcastTypeNetwork Type.Chat, network, 'unban',
             chan: @channel
             user: user
 
@@ -177,15 +192,17 @@ class SauceBot
     
     constructor: (@socket) ->
         @socket.type = Type.Web
+        @socket.network = Network.Twitch
         @socket.name = 'Unknown'
 
         @socket.on 'register', (data) =>
-            {type, name} = data
+            {type, name, network} = data
 
             @socket.type = type
             @socket.name = name
+            @socket.network = network
 
-            io.socket "Client registered as #{type}::#{name} @ #{@socket.remoteAddress()}"
+            io.socket "Client registered as #{type}::#{name} on network #{network} @ #{@socket.remoteAddress()}"
 
             if type is Type.Chat
                 updateClientChannels @socket
@@ -194,7 +211,7 @@ class SauceBot
         @socket.on 'msg', (data) =>
             graph.count 'input.msg'
             try
-                @handle data
+                @handle data, @socket.network
             catch error
                 @emitError "Syntax error: #{error}"
                 io.error error + "\n" + error.stack
@@ -260,14 +277,15 @@ class SauceBot
     #  ? op  : [OPT] Source user's op status: 1/0
     #  * msg : [REQ] Message
     #
-    handle: (json) ->
+    handle: (json, network) ->
         chan      = json.chan
 
         # Normalize json.op
         json.op   = if json.op then 1 else null
 
+        msgUuid   = if json.uuid then json.uuid else null
         # Handle the message
-        chans.handle chan, json
+        chans.handle chan, json, network, msgUuid
             
 
     # Creates a web callback result object.

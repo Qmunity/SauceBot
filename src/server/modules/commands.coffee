@@ -155,13 +155,13 @@ class Commands extends Module
 
         # Create a simple trigger that looks up a key in @commands
         @triggers[cmd] = trig.buildTrigger  this, cmd, level, sub,
-            (user, args) =>
+            (user, args, bot, network) =>
                 data = @commands.get cmd
                 unless data?
                     return io.error "No such command #{cmd}"
 
                 @channel.vars.parse user, data.message, (args.join ' '), (parsed) =>
-                    @bot.say parsed
+                    @bot.say parsed, network
 
 
         @channel.register @triggers[cmd]
@@ -182,14 +182,14 @@ class Commands extends Module
         delete @triggers[cmd]
 
     
-    cmdIsSub: (user, args, bot) =>
-        bot.say 'user ' + user.name + ' sub = ' + @channel.isSub(user.name)
+    cmdIsSub: (user, args, bot, network) =>
+        bot.say 'user ' + user.name + ' sub = ' + @channel.isSub(user.name), network
 
 
     # !(un)?set <command>  - Unset command
-    cmdUnset: (user, args, say=true) =>
+    cmdUnset: (user, args, network, say=true) =>
         unless args[0]?
-            return @bot.say @str('err-usage', '!unset <name>') + '. ' + @str('err-only-forget-set', '!set')
+            return @bot.say @str('err-usage', '!unset <name>') + '. ' + @str('err-only-forget-set', '!set'), network
 
         cmd = args[0]
 
@@ -197,7 +197,7 @@ class Commands extends Module
         b = @delTriggerIgnoreCase cmd
 
         if say
-            @bot.say @str('action-unset', cmd) if a or b
+            @bot.say (@str('action-unset', cmd) if a or b), network
 
 
     # Removes a command (not case sensitive)
@@ -220,83 +220,83 @@ class Commands extends Module
 
     # !set <command> <message>  - Set command
     # !set <command>            - Unset command
-    cmdSet: (user, args) =>
+    cmdSet: (user, args, bot, network) =>
         unless args[0]?
-            return @bot.say @str('err-usage', '!set <name> <message>') + '. ' + @str('err-to-forget', '!set <name>', '!unset <name>')
+            return @bot.say @str('err-usage', '!set <name> <message>') + '. ' + @str('err-to-forget', '!set <name>', '!unset <name>'), network
 
         # !set <command>
         if (args.length is 1)
-            return @cmdUnset user, args
+            return @cmdUnset user, args, network
         else
-            @cmdUnset user, args, false
+            @cmdUnset user, args, network, false
 
         cmd  = (args.splice 0, 1)[0]
         msg  = args.join ' '
         @setCommand cmd, msg, Sauce.Level.User
 
-        return @bot.say @str('action-set', cmd)
+        return @bot.say @str('action-set', cmd), network
 
 
     # !setmod <command> <message>  - Set moderator-only command
     # !setmod <command>            - Unset command
-    cmdSetMod: (user, args) =>
+    cmdSetMod: (user, args, bot, network) =>
         unless args[0]?
-            return @bot.say @str('err-usage', '!setmod <name> <message>') + '. ' + @str('err-to-forget', '!setmod <name>', '!unset <name>')
+            return @bot.say @str('err-usage', '!setmod <name> <message>') + '. ' + @str('err-to-forget', '!setmod <name>', '!unset <name>'), network
 
         # !setmod <command>
         if (args.length is 1)
-            return @cmdUnset user, args
+            return @cmdUnset user, args, network
         else
-            @cmdUnset user, args, false
+            @cmdUnset user, args, network, false
         
 
         cmd  = (args.splice 0, 1)[0]
         msg  = args.join ' '
         @setCommand cmd, msg, Sauce.Level.Mod
 
-        return @bot.say @str('action-mod-set', cmd)
+        return @bot.say @str('action-mod-set', cmd), network
        
     # !setsub <command> <message> - Set Sub-only command (and higher)
     # !setsub <command> - Unset command
-    cmdSetSub: (user, args, bot) =>
+    cmdSetSub: (user, args, bot, network) =>
         unless args[0]?
-            return bot.say @str('err-usage', '!setsub <name> <message>') + '. ' + @str('err-to-forget', '!setsub <name>', '!unset <name>')
+            return bot.say @str('err-usage', '!setsub <name> <message>') + '. ' + @str('err-to-forget', '!setsub <name>', '!unset <name>'), network
 
         # !setsub <command>
         if(args.length is 1)
-            return @cmdUnset user, args
+            return @cmdUnset user, args, network
         else
-            @cmdUnset user, args, false
+            @cmdUnset user, args, network, false
 
         cmd = (args.splice 0, 1)[0]
         msg = args.join ' '
         @setCommand cmd, msg, false, true
 
-        return @bot.say @str('action-sub-set', cmd)
+        return @bot.say @str('action-sub-set', cmd), network
         
 
     # !remotes - Shows remote fields
-    cmdRemotes: (user, args) =>
-        @bot.say "[Remotes] " + JSON.stringify(@remotes.get()).substring(0, 400)
+    cmdRemotes: (user, args, bot, network) =>
+        @bot.say "[Remotes] " + JSON.stringify(@remotes.get()).substring(0, 400), network
 
 
     # !setrem <key> <message> - Sets a remote
-    cmdSetRem: (user, args) =>
+    cmdSetRem: (user, args, bot, network) =>
         unless args.length >= 2
-            return @bot.say "Remotes set usage: !setrem <key> <message>"
+            return @bot.say "Remotes set usage: !setrem <key> <message>", network
 
         key = (args.splice 0, 1)[0]
         msg = args.join ' '
 
         unless user.id?
-            return @bot.say "Only moderators registered on the web interface may set remote commands."
+            return @bot.say "Only moderators registered on the web interface may set remote commands.", network
 
         @remotes.add key, {
             value: msg
             updatedby: user.id
             updatetime: ~~(Date.now()/1000)
         }
-        @bot.say "Remote set."
+        @bot.say "Remote set.", network
 
         
 

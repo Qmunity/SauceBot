@@ -131,46 +131,46 @@ class AutoCommercial extends Module
         res.ok()
 
 
-    cmdEnableCommercial: (user, args)  =>
+    cmdEnableCommercial: (user, args, bot, network)  =>
         @comDTO.add 'state', 1
         @lastTime = Date.now()
-        @say @str('config-enable') + '. ' + @str('info-editor')
+        @say @str('config-enable') + '. ' + @str('info-editor'), network
     
     
-    cmdDisableCommercial: (user, args) =>
+    cmdDisableCommercial: (user, args, bot, network) =>
         @comDTO.add 'state', 0
-        @say @str('config-disable')
+        @say @str('config-disable'), network
 
 
-    cmdDelay: (user, args) =>
+    cmdDelay: (user, args, bot, network) =>
         num = @clampMinimums 'delay', args[0]
-        @say @str('action-delay', num)
+        @say @str('action-delay', num), network
 
 
-    cmdMessages: (user, args) =>
+    cmdMessages: (user, args, bot, network) =>
         num = @clampMinimums 'messages', args[0]
-        @say @str('action-messages', num)
+        @say @str('action-messages', num), network
 
 
-    cmdLength: (user, args) =>
+    cmdLength: (user, args, bot, network) =>
         num = parseInt(args[0], 10)
         if not (num in DURATIONS)
-            @say @str('error-length', DURATIONS.join(', '))
+            @say @str('error-length', DURATIONS.join(', ')), network
         else
             @comDTO.add 'length', num
-            @say @str('action-length', num)
+            @say @str('action-length', num), network
 
 
 
-    cmdCancel: (user, args) =>
+    cmdCancel: (user, args, bot, network) =>
         if @cancelNext is null
-            return @bot.say @str('error-cancel', COMMERCIAL_CANCEL_TIME)
+            return @bot.say @str('error-cancel', COMMERCIAL_CANCEL_TIME), network
 
         @cancelNext = true
-        @bot.say @str('action-canceled')
+        @bot.say @str('action-canceled'), network
 
 
-    cmdCommercial: (user, args) =>
+    cmdCommercial: (user, args, bot, network) =>
         if @lastTime < COMMERCIAL_DELAY then return
         duration = parseInt(args[0], 10)
         duration = DURATIONS[0] unless duration in DURATIONS
@@ -180,9 +180,9 @@ class AutoCommercial extends Module
         oauth.post "/channels/#{@channel.name}/commercial", { length: duration }, (resp, body) =>
             # "204 No Content" if successful.
             if resp.statusCode is 204
-                @bot.say @str('action-commercial', @channel.name)
+                @bot.say @str('action-commercial', @channel.name), network
             else
-                @bot.say @str('action-failed')
+                @bot.say @str('action-failed'), network
         
 
     clampMinimums: (field, val) ->
@@ -228,7 +228,7 @@ class AutoCommercial extends Module
         @messages.length
 
 
-    handle: (user, msg) ->
+    handle: (user, msg, network) ->
         return unless @comDTO.get 'state'
         now = Date.now()
         
@@ -241,7 +241,7 @@ class AutoCommercial extends Module
         
         return unless @messagesSinceLast() >= msgsLimit and (now - @lastTime > (delay * 60 * 1000))
 
-        @bot.say @str('action-preparing', COMMERCIAL_CANCEL_TIME)
+        @bot.say @str('action-preparing', COMMERCIAL_CANCEL_TIME), network
         
         setTimeout =>
             return if @cancelNext
@@ -252,9 +252,9 @@ class AutoCommercial extends Module
             oauth.post "/channels/#{@channel.name}/commercial", { length: length }, (resp, body) =>
                 # "204 No Content" if successful.
                 if resp.statusCode is 204
-                    @bot.say @str('action-commercial', @channel.name)
+                    @bot.say @str('action-commercial', @channel.name), network
                 else
-                    @bot.say @str('action-failed')
+                    @bot.say @str('action-failed'), network
 
         , COMMERCIAL_CANCEL_TIME * 1000
 
