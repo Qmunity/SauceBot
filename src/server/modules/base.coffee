@@ -21,7 +21,7 @@ exports.locked      = true
 
 exports.strings = {
     # Help messages
-    'help-basic'    : 'For urgent help, use @1@. Otherwise, tweet @RavnTM'
+    'help-basic'    : 'For urgent help, use @1@. Otherwise, tweet @Quetzi'
     'help-requested': 'SauceBot helpers have been alerted and should arrive soon.'
     
     # Misc messages
@@ -30,7 +30,7 @@ exports.strings = {
     # Verification messages
     'verify-syntax' : 'No code specified. Usage: @1@'
     'verify-ok'     : '@1@: Verified.'
-    'verify-err'    : '@1@: Invalid code. Make sure your www.saucebot.com name matches your TwitchTV name.'
+    'verify-err'    : '@1@: Invalid code. Make sure your name matches your TwitchTV name.'
 
     # Moderator-only mode configuration
     'mod-enabled'   : 'All commands are now mod-only.'
@@ -148,13 +148,13 @@ class Base extends Module
     # !<botname> - Prints bot name and version.
     cmdBot: (user, args, bot, network) =>
         botName = (@channel.botName ? 'SauceBot')
-        @bot.say "[#{botName}] #{Sauce.Server.Name} v#{Sauce.Version} by K4Unl - www.k4bot.k-4u.nl", network
+        @bot.say "[#{botName}] #{Sauce.Server.Name} v#{Sauce.Version} by RavnTM", network
 
 
     # !<botname> join - Prints info on how to get the bot
     cmdBotJoin: (user, args, bot, network) =>
         botName = (@channel.botName ? 'SauceBot')
-        @bot.say "[#{botName}] #{user.name}: Talk to K4Unl (@K_4Unl) to apply for #{botName}! Good luck! :-)", network
+        @bot.say "[#{botName}] #{user.name}: Talk to Quetzi (@Quetzi) to apply for #{botName}! Good luck! :-)", network
 
 
     # !test - Prints test command and user level.
