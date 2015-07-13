@@ -8,6 +8,5 @@ node_modules/
 -p/
 .project
 server.json
-.idea/compiler.xml
 .idea/
 Saucebot.iml
