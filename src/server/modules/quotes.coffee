@@ -29,6 +29,7 @@ class Quotes extends Module
         super @channel
         @quoteDTO = new BucketDTO @channel, 'quotes', 'id', ['list', 'quote']
         @quotes   = {}
+        @quotesId = []
         
         
     load: ->
@@ -38,6 +39,8 @@ class Quotes extends Module
             for id, {quote, list} of @quoteDTO.data
                 @quotes[list] = [] unless @quotes[list]?
                 @quotes[list].push quote
+
+                @quotesId.push {"list":list, "quote":quote}
 
         # Register web interface update handlers
         @regActs {
@@ -114,11 +117,18 @@ class Quotes extends Module
             return @bot.say @str('quote', @getRandomQuote(list), list)
         
         if args.length == 1
-            list = args[0].toLowerCase()
-            unless @quotes[list]?
-                return @bot.say @str('no-quotes', list)
+            if(args[0].substring(0,1) == "#")
+                #ID found
+                id = parseInt(args[0].substr(1), 10)
+                quote = @quotesId[id]
+
+                @bot.say @str('quote', quote['quote'], quote['list'])
+            else
+                list = args[0].toLowerCase()
+                unless @quotes[list]?
+                    return @bot.say @str('no-quotes', list)
             
-            @bot.say @str('quote', @getRandomQuote(list), list)
+                @bot.say @str('quote', @getRandomQuote(list), list)
 
     cmdAddQuote: (user, args) =>
         if args.length < 2
