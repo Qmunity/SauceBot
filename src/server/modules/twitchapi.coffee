@@ -52,7 +52,6 @@ ttvcache = new Cache (key, cb) ->
 hostUrl = (ip, key) -> "http://#{ip}/rooms/#{key}/hosts"
 
 
-
 strip = (msg) -> msg.replace /[^a-zA-Z0-9_]/g, ''
 
 class TwitchAPI extends Module
@@ -84,6 +83,7 @@ class TwitchAPI extends Module
         @regCmd "showhosts off", Sauce.Level.Mod, @cmdHostShowDisable
         @regCmd "showhosts seconds", Sauce.Level.Mod, @cmdHostShowSeconds
 
+        @regVar 'jtv', @varTwitch
         @regVar 'twitch', @varTwitch
 
         # Register web interface update handlers
@@ -223,14 +223,47 @@ class TwitchAPI extends Module
                 when 'title'     then @getTitle     chan, cb
                 when 'follows'   then @getFollows   chan, cb
                 when 'hosts'     then @getNumHosts  chan, cb
+                when 'start'     then @getStartTime chan, cb
+                when 'uptime'    then @getUptime    chan, cb
                 else cb usage
          
          
     getGame: (chan, cb) ->
         @getTTVData chan, (data) ->
             cb (data["game"] ? "N/A")
+           
+    timeToString: (seconds) ->
+        sec_num = parseInt(seconds, 10)
+        hours   = Math.floor(sec_num / 3600)
+        minutes = Math.floor((sec_num - (hours * 3600)) / 60)
+        seconds = sec_num - (hours * 3600) - (minutes * 60)
+
+        time = ""
+        if hours > 0
+            time += hours + " hour"
+            if hours > 1
+                time += "s"
+
+        if minutes > 0
+            if hours > 0
+                time += ","
             
-            
+            time += minutes + " minute"
+            if minutes > 1
+                time += "s"
+        if isNaN seconds
+            time = "Not streaming"
+        return time
+
+
+
+    getUptime: (chan, cb) ->
+        @getTTVStreamData chan, (data) =>
+            cb @timeToString(((new Date()).getTime() - new Date(((data["stream"] ? {})["created_at"] ? "now")).getTime())/1000), chan
+
+    getStartTime: (chan, cb) ->
+        @getTTVStreamData chan, (data) ->
+            cb (new Date((data["stream"] ? {})["created_at"] ? "now")), chan
 
     getViewers: (chan, cb) ->
         @getTTVStreamData chan, (data) ->
@@ -265,6 +298,7 @@ class TwitchAPI extends Module
             l = Object.keys(data).length
             cb l
 
+    
     
     webFetcher: (key, cb) ->
         url = hostUrl @chatDepotIP, key
