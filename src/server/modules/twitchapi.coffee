@@ -252,7 +252,7 @@ class TwitchAPI extends Module
             if minutes > 1
                 time += "s"
         if isNaN seconds
-            time = "Not streaming"
+            time = "Not live"
         return time
 
 
