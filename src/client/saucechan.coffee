@@ -28,7 +28,6 @@ class Channel
             @emit 'error', message
             
         @irc.on 'motd' , (motd) =>
-            @irc.send 'JTVROOMS', @irc.channel
             @irc.send 'TWITCHCLIENT 2', @irc.channel
             @irc.send 'CAP REQ :twitch.tv/membership', @irc.channel
 
