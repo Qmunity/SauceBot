@@ -20,6 +20,7 @@ exports.strings = {
     'no-quotes' : 'No quotes for @1@'
     'invalid-id': 'This ID is invalid'
     'edited': "Quote has been edited"
+    'removed': "Quote @1@ has been removed"
 }
 
 io.module '[Quotes] Init'
@@ -29,16 +30,16 @@ class Quotes extends Module
         super @channel
         @quoteDTO = new BucketDTO @channel, 'quotes', 'id', ['list', 'quote']
         @quotes   = {}
+        @quotesId = []
         
         
     load: ->
         @registerHandlers()
         
         @quoteDTO.load =>
-            for id, {quote, list} of @quoteDTO.data
-                @quotes[list] = [] unless @quotes[list]?
-                @quotes[list].push quote
+            @reload()
 
+        
         # Register web interface update handlers
         @regActs {
             # Quotes.get([list])
@@ -67,11 +68,20 @@ class Quotes extends Module
 
         }
         
+    reload: =>
+            @quotes   = {}
+            @quotesId = []
+            for id, {quote, list} of @quoteDTO.data
+                @quotes[list] = [] unless @quotes[list]?
+                @quotes[list].push quote
+
+                @quotesId.push {"list":list, "quote":quote, "dbid":id}
 
     registerHandlers: ->
         @regCmd "quote", Sauce.Level.Mod, @cmdRandomQuote
         @regCmd "quote add", Sauce.Level.Mod, @cmdAddQuote
         @regCmd "quote edit", Sauce.Level.Mod, @cmdEditQuote
+        @regCmd "quote remove", Sauce.Level.Mod, @cmdRemoveQuote
 
         @regVar 'quote', (user, args, cb) =>
             unless (list = args[0])? and (@hasQuotes list)
@@ -97,6 +107,8 @@ class Quotes extends Module
         @quotes[list] = [] unless @quotes[list]?
         @quotes[list].push msg
 
+        @quotesId.push {"quote": msg, "list": list}
+
         @bot.say "Quote added"
 
     getRandomQuote: (list) ->
@@ -114,11 +126,21 @@ class Quotes extends Module
             return @bot.say @str('quote', @getRandomQuote(list), list)
         
         if args.length == 1
-            list = args[0].toLowerCase()
-            unless @quotes[list]?
-                return @bot.say @str('no-quotes', list)
+            if(args[0].substring(0,1) == "#")
+                #ID found
+                id = parseInt(args[0].substr(1), 10)-1
+                unless @quotesId[id]?
+                    return @bot.say @str('no-quotes', args[0])
+
+                quote = @quotesId[id]
+
+                @bot.say @str('quote', quote['quote'], quote['list'])
+            else
+                list = args[0].toLowerCase()
+                unless @quotes[list]?
+                    return @bot.say @str('no-quotes', list)
             
-            @bot.say @str('quote', @getRandomQuote(list), list)
+                @bot.say @str('quote', @getRandomQuote(list), list)
 
     cmdAddQuote: (user, args) =>
         if args.length < 2
@@ -132,35 +154,53 @@ class Quotes extends Module
 
     cmdEditQuote: (user, args) =>
         if args.length < 3
-            return @bot.say @str('err-usage', '!quote edit <list> <id> <newquote>')
+            return @bot.say @str('err-usage', '!quote edit #<id> <newquote>')
         
-        list = args[0]
-        list = list.toLowerCase()
-
-        unless @quotes[list]?
-            return @bot.say @str('no-quotes', list)
-
-        id = parseInt(args[1], 10)
+        if args[0].substr(0, 1) != "#"
+            return @bot.say @str('err-usage', '!quote edit #<id> <newquote>')
+        
+        id = parseInt(args[0].substr(1), 10)-1
         if isNaN id
             return @bot.say @str('invalid-id')
 
+        unless @quotesId[id]?
+            return @bot.say @str('no-quotes', args[0])
 
         quote = {}
         quote['chanid'] = @channel.id
-        quote['id'] = id
-        quote['list'] = list
-        args.splice(0,2)
+        quote['id'] = @quotesId[id]['dbid']
+        quote['list'] = @quotesId[id]['list']
+        args.splice(0,1)
         quote['quote'] = args.join(' ')
-        @quoteDTO.add id, quote
 
-        @quotes = []
-        
-        for id, {quote, list} of @quoteDTO.data
-            @quotes[list] = [] unless @quotes[list]?
-            @quotes[list].push quote
+        @quoteDTO.add @quotesId[id]['dbid'], quote
+
+        @reload()
 
         @bot.say @str('edited')
 
+
+    cmdRemoveQuote: (user, args) =>
+        if args.length < 1
+            return @bot.say @str('err-usage', '!quote remove #<id>')
+
+        if args[0].substr(0, 1) != "#"
+            return @bot.say @str('err-usage', '!quote remove #<id>')
+
+        id = parseInt(args[0].substr(1))-1
+        if isNaN id
+            return @bot.say @str('invalid-id')
+
+        unless @quotesId[id]?
+            return @bot.say @str('no-quotes', args[0])
+
+        quote = @quotesId[id]
+
+        @quoteDTO.remove quote['dbid']
+
+        @reload()
+
+        @bot.say @str('removed', args[0])
 
 
 exports.New = (channel) -> new Quotes channel
