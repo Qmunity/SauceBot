@@ -188,8 +188,6 @@ class Channel
         module.unloadModule()
         @modules.splice @modules.indexOf(module), 1
 
-
-
     isSub: (username) ->
         return @hasRole(username, Sauce.Role.Subscriber)
 
@@ -247,6 +245,13 @@ class Channel
     # * data: the contents of the message
     handle: (data) ->
         user = @getUser data.user, data.op
+
+        if data.meta.subscriber
+            @addRole user.name, Sauce.Role.Subscriber
+
+        if data.meta.turbo
+            @addRole user.name, Sauce.Role.Turbo
+
         # Cache the op level of the user from the data we get
         @usernames[user.name.toLowerCase()] = user.op
 
@@ -257,7 +262,7 @@ class Channel
             # Check for first match that the user is authorized to use, also
             # taking into account whether the channel is in mod-only mode
             if trigger.test(msg) and (user.op >= trigger.oplevel and (!@isModOnly() or user.op >= Sauce.Level.Mod))
-                if (trigger.sub and @isSub(user.name)) or !trigger.sub
+                if (trigger.sub and (@hasRole(user.name,Sauce.Role.Subscriber) or user.op >= Sauce.Level.Mod)) or !trigger.sub
                     args = trigger.getArgs msg
                     trigger.execute user, args, @bot
                     # We only want to run one trigger, so break here
@@ -367,7 +372,10 @@ class Channel
     # Returns whether the user has the specified role
     # Roles includes twitch admin, staff and subscriber
     hasRole: (username, role) ->
-        return @roles[role]?[username.toLowerCase()]
+        hRole = false
+        if @roles[role]?[username.toLowerCase()]
+            hRole = true
+        return hRole
 
 
 

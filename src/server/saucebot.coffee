@@ -266,11 +266,12 @@ class SauceBot
     handle: (json) ->
         chan      = json.chan
 
+        meta = json.meta
         # Normalize json.op
         json.op   = if json.op then 1 else null
 
         # Handle the message
-        chans.handle chan, json
+        chans.handle chan, json, meta
             
 
     # Creates a web callback result object.

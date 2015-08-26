@@ -11,10 +11,13 @@ class Channel
         @lastActive = 0
         @irc = new SauceIRC @server, @username, @password
         
-        @irc.on 'message' + @irc.channel, (from, message) =>
+        @irc.on 'message' + @irc.channel, (from, message, meta) =>
+            if meta['meta']
+                meta = meta['meta']
             @emit 'message',
                 from    : from
                 message : message
+                meta    : meta
                 op      : if @isOp from then 1 else null
 
             @lastActive = Date.now()
@@ -28,9 +31,8 @@ class Channel
             @emit 'error', message
             
         @irc.on 'motd' , (motd) =>
-            @irc.send 'JTVROOMS', @irc.channel
-            @irc.send 'TWITCHCLIENT 2', @irc.channel
             @irc.send 'CAP REQ :twitch.tv/membership', @irc.channel
+            @irc.send 'CAP REQ :twitch.tv/tags', @irc.channel
 
             @emit 'connected'
 

@@ -91,7 +91,6 @@ class Bot
         # Message handler - on normal channel messages
         chan.on 'message', (args) =>
             {from, message, op} = args
-            
             prefix = if op then '@' else ' '
            
             if HIGHLIGHT.test message

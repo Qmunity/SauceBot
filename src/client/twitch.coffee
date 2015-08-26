@@ -165,8 +165,8 @@ class Twitch
         channel = new Channel chan, account.name, account.pass
         
         channel.on 'message', (data) =>
-            {from, op, message} = data
-            @emit 'message', chan, from, op, message
+            {from, op, message, meta} = data
+            @emit 'message', chan, from, op, message, meta
             
         channel.on 'pm', (data) =>
             {from, message} = data

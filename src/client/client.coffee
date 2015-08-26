@@ -48,7 +48,7 @@ loadAccounts accounts
 
 # Add handlers for messages from Twitch
 
-twitch.on 'message', (chan, from, op, message) ->
+twitch.on 'message', (chan, from, op, message, meta) ->
     prefix = if op then '@' else ' '
 
     col = toNodeColor userColors[from]
@@ -60,6 +60,7 @@ twitch.on 'message', (chan, from, op, message) ->
         user: from
         msg : message
         op  : op
+        meta: meta
 
 
 parseUserColor = (msg) ->
