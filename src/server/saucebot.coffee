@@ -171,6 +171,9 @@ class SauceEmitter
             chan: @channel
             user: user
 
+    reloadChannels: ->
+        loadChannels()
+
 
 # SauceBot connection handler class
 class SauceBot

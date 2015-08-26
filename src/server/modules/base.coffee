@@ -3,6 +3,7 @@
 Sauce = require '../sauce'
 db    = require '../saucedb'
 trig  = require '../trigger'
+chans = require '../channels'
 
 io    = require '../ioutil'
 tz    = require '../../common/time'
@@ -87,7 +88,25 @@ verify = (user, code, isVerified) ->
                 return isVerified(true)
 
         isVerified(false)
-    
+
+
+# Add a new channel with default modules enabled
+addChannel = (newChannel, botName, bot) ->
+    db.addData 'channel', ['name', 'status', 'bot'], [[newChannel.toLowerCase(), 1, botName]]
+    chanId = 0
+    db.query 'SELECT * FROM channel WHERE name=?', [newChannel.toLowerCase()], (err, results) ->
+        for res in results
+            chanId = res.chanid
+
+        db.query 'SELECT name FROM moduleinfo WHERE defaultstate=1', (err, defaultModules) ->
+            if (chanId != 0)
+                for module in defaultModules
+                    db.addData 'module', ['chanid', 'module', 'state'], [[chanId, module.name, 1]]
+                    
+                db.addData 'channelconfig', ['chanid', 'modonly', 'quiet'], [[chanId, 0, 0]]
+                db.addData 'newsconf', ['chanid', 'state', 'seconds', 'messages', 'prefix'], [[chanId, 1, 300, 20, '[News]']]
+
+            bot.reloadChannels()
 
 # Base module
 class Base extends Module
@@ -113,9 +132,11 @@ class Base extends Module
         if botName isnt 'saucebot'
             @regCmd botName,           Sauce.Level.User, @cmdBot
             @regCmd botName + ' join', Sauce.Level.User, @cmdBotJoin
+            @regCmd botName + ' leave', Sauce.Level.Owner + 1, @cmdBotLeave
 
         @regCmd "saucebot",      Sauce.Level.User,  @cmdBot
         @regCmd "saucebot join", Sauce.Level.User,  @cmdBotJoin
+        @regCmd "saucebot leave",Sauce.Level.Owner + 1, @cmdBotLeave
         @regCmd "saucetime",     Sauce.Level.User,  @cmdSaucetime
         @regCmd "verify",        Sauce.Level.User,  @cmdVerify
         @regCmd "test",          Sauce.Level.Mod,   @cmdTest
@@ -152,10 +173,19 @@ class Base extends Module
 
 
     # !<botname> join - Prints info on how to get the bot
-    cmdBotJoin: (user, args) =>
+    cmdBotJoin: (user, args, bot) =>
         botName = (@channel.botName ? 'SauceBot')
-        @bot.say "[#{botName}] #{user.name}: Talk to @Quetzi to apply for #{botName}! Good luck! :-)"
+        unless Sauce.Level.Owner + 1
+            @bot.say "[#{botName}] #{user.name}: Talk to Quetzi (@Quetzi) to apply for #{botName}! Good luck! :-)"
+        addChannel(args[0].toLowerCase(), botName, bot)
 
+    # !<botname> leave - removes bot from the channel
+    cmdBotLeave: (user, args, bot) =>
+        channelName = @channel.name
+        if args[0]
+            channelName = args[0].toLowerCase()
+        db.query 'UPDATE channel SET status=0 WHERE chanid=?', [chans.getByName(channelName).id], (err, result) ->
+            bot.reloadChannels()
 
     # !test - Prints test command and user level.
     cmdTest: (user, args) =>
