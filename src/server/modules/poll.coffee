@@ -145,13 +145,13 @@ class Poll extends Module
 
     cmdPollStart: (user, args) =>
         unless args[0]?
-            return @bot.say '[Poll] ' + @str('err-no-poll-specified') + '. ' + @str('err-usage', '!poll (<name>|run) <opt1> <opt2> ...')
+            return @bot.say '[Poll] ' + @str('err-no-poll-specified') + '. ' + @str('err-usage', '!poll ([name]|run) [opt1] [opt2] ...')
             
         pollName = args.shift().toLowerCase()
         
         unless args.length
             unless @polls[pollName]?
-                return @bot.say '[Poll] ' + @str('err-unknown-poll', "!poll #{pollName} <opt1> <opt2> ...")
+                return @bot.say '[Poll] ' + @str('err-unknown-poll', "!poll #{pollName} [opt1] [opt2] ...")
                 
             @startPoll pollName
         else
@@ -161,7 +161,7 @@ class Poll extends Module
     cmdPollRun: (user, args) =>
         # Need at least two options for a poll
         unless args.length > 1
-            return @bot.say '[Poll] ' + @str('err-usage', '!poll run <opt1> <opt2> ...')
+            return @bot.say '[Poll] ' + @str('err-usage', '!poll run [opt1] [opt2] ...')
 
         options = args.join ' '
         pollName = ANONYMOUS_POLL_NAME
@@ -179,7 +179,7 @@ class Poll extends Module
         @activePoll = pollName
         @votes = (0 for opt in poll)
         
-        @bot.say '[Poll] ' + @str('action-started', pollName, '!vote <option>', poll.join ', ')
+        @bot.say '[Poll] ' + @str('action-started', pollName, '!vote [option]', poll.join ', ')
 
 
     # Creates a poll.
@@ -217,19 +217,19 @@ class Poll extends Module
  
     cmdPollEnd: (user, args) =>
         unless @activePoll?
-            return @bot.say '[Poll] ' + @str('err-no-active-poll', '!poll run <opt1> <opt2> ...')
+            return @bot.say '[Poll] ' + @str('err-no-active-poll', '!poll run [opt1] [opt2] ...')
             
         @endPoll()
 
     cmdPollResults: (user, args) =>
         unless @activePoll?
-            return @bot.say '[Poll] ' + @str('err-no-active-poll', '!poll run <opt1> <opt2> ...')
+            return @bot.say '[Poll] ' + @str('err-no-active-poll', '!poll run [opt1] [opt2] ...')
         @bot.say '[Poll] ' + @str('action-results', @activePoll, @getResults())
 
 
     cmdPollRemove: (user, args) =>
         unless args[0]?
-            return @bot.say '[Poll] ' + @str('err-no-poll-specified') + '. ' + @str('err-usage', '!poll remove <name>')
+            return @bot.say '[Poll] ' + @str('err-no-poll-specified') + '. ' + @str('err-usage', '!poll remove [name]')
 
         @removePoll args[0]
         
