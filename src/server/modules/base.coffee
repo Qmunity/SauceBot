@@ -173,6 +173,7 @@ class Base extends Module
 
 
     # !<botname> join - Prints info on how to get the bot
+    # When used by global owner bot will join specified channel
     cmdBotJoin: (user, args, bot) =>
         botName = (@channel.botName ? 'SauceBot')
         unless Sauce.Level.Owner + 1
@@ -180,6 +181,7 @@ class Base extends Module
         addChannel(args[0].toLowerCase(), botName, bot)
 
     # !<botname> leave - removes bot from the channel
+    # Usable by global owner only
     cmdBotLeave: (user, args, bot) =>
         channelName = @channel.name
         if args[0]
@@ -192,7 +194,7 @@ class Base extends Module
         @bot.say "[Test] #{user.name} - #{Sauce.LevelStr user.op}"
 
 
-    # !saucetime - Prints the time in SauceBot's timezone.
+    # !saucetime - Prints the time in SauceBots timezone.
     cmdSaucetime: (user, args) =>
         @bot.say "[SauceTime] #{tz.formatZone 'Europe/Amsterdam', '%H:%M:%S UTC %z'}"
 

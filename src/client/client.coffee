@@ -191,6 +191,10 @@ term.on 'close', [], ->
         process.exit()
     , 5000
 
+term.on 'restart', [], ->
+    reloadAccountConfig()
+    twitch.restart()
+
 
 # Register with the server as a chat client by requesting a channel list
 #sauce.emit 'get', { type: 'Channels' }
