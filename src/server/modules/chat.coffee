@@ -42,7 +42,7 @@ class Chat extends Module
     writelog: (user, msg) ->
         @log.timestamp "#{if user.op then '@' else ' '}#{user.name}", msg
         
-        if /k4unl|ravn|sauce|sause|\brav\b|drunkbot|cloudbro|beardbot/i.test msg
+        if /quetzi|sauce|morpheus|bluepower|\bq\b|qmunitybot/i.test msg
             mentions.write new Date(), @channel.name, user.name, msg
 
     load:->
