@@ -134,31 +134,31 @@ class AutoCommercial extends Module
     cmdEnableCommercial: (user, args)  =>
         @comDTO.add 'state', 1
         @lastTime = Date.now()
-        @say @str('config-enable') + '. ' + @str('info-editor')
+        @bot.say @str('config-enable') + '. ' + @str('info-editor')
     
     
     cmdDisableCommercial: (user, args) =>
         @comDTO.add 'state', 0
-        @say @str('config-disable')
+        @bot.say @str('config-disable')
 
 
     cmdDelay: (user, args) =>
         num = @clampMinimums 'delay', args[0]
-        @say @str('action-delay', num)
+        @bot.say @str('action-delay', num)
 
 
     cmdMessages: (user, args) =>
         num = @clampMinimums 'messages', args[0]
-        @say @str('action-messages', num)
+        @bot.say @str('action-messages', num)
 
 
     cmdLength: (user, args) =>
         num = parseInt(args[0], 10)
         if not (num in DURATIONS)
-            @say @str('error-length', DURATIONS.join(', '))
+            @bot.say @str('error-length', DURATIONS.join(', '))
         else
             @comDTO.add 'length', num
-            @say @str('action-length', num)
+            @bot.say @str('action-length', num)
 
 
 

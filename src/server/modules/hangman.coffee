@@ -23,9 +23,7 @@ io.module '[HM] Init'
 
 # Language dictionaries
 wordfiles =
-    'english'  : '/usr/share/dict/british-english'
-    'american' : '/usr/share/dict/american-english'
-    'norwegian': '/usr/share/dict/norsk'
+    'english'  : '/usr/share/dict/words'
     
     
 wordlists = {}

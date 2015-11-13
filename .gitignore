@@ -10,3 +10,5 @@ node_modules/
 server.json
 .idea/
 Saucebot.iml
+irc.js
+irc.js.old.js

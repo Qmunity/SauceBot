@@ -352,8 +352,10 @@ class SauceBot
                     username = @fixUsername username
                     console.log "Banning #{username} (#{channel.name})"
                     #@ban channel.name, username
-                    
-                
+
+            when 'Modules'
+                channel?.loadChannelModules()
+
             else
                 channel?.reloadModule type
                 

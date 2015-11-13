@@ -33,6 +33,7 @@ class Channel
         @irc.on 'motd' , (motd) =>
             @irc.send 'CAP REQ :twitch.tv/membership', @irc.channel
             @irc.send 'CAP REQ :twitch.tv/tags', @irc.channel
+            @irc.send 'CAP REQ :twitch.tv/commands', @irc.channel
 
             @emit 'connected'
 

@@ -369,12 +369,12 @@ class Pokemon extends Module
 
             if enable is 'on'
                 @conf.add 'modonly', 1
-                @say @str('modonly-enabled')
+                @bot.say @str('modonly-enabled')
             else if enable is 'off'
                 @conf.add 'modonly', 0
-                @say @str('modonly-disabled')
+                @bot.say @str('modonly-disabled')
             else
-                @say @str('err-usage', '!pm modonly on/off')
+                @bot.say @str('err-usage', '!pm modonly on/off')
 
 
         @regActs {
@@ -400,7 +400,7 @@ class Pokemon extends Module
     # !pm
     cmdPkmn: (user, args) =>
         return if @notPermitted user
-        @say @str('err-usage', '!pm <cmd>. Commands: team, throw, release, fight, stats, top, modonly')
+        @bot.say @str('err-usage', '!pm <cmd>. Commands: team, throw, release, fight, stats, top, modonly')
 
 
     # !pm team
@@ -408,10 +408,10 @@ class Pokemon extends Module
         return if @notPermitted user
         user = user.name
         unless (team = teams[user.toLowerCase()])?
-            return @say @str('err-no-team', user) + ' ' + @str('err-catch-usage', '!pm throw')
+            return @bot.say @str('err-no-team', user) + ' ' + @str('err-catch-usage', '!pm throw')
 
         str = (mon.str() for mon in team).join (', ')
-        @say @str('action-team', user, str)
+        @bot.say @str('action-team', user, str)
 
 
     # !pm throw [user]
@@ -424,14 +424,14 @@ class Pokemon extends Module
             if @channel.usernames[targetName]?
                 mon.name = targetName
             else
-                return @say "#{user}: " + @str('err-unknown-user', targetName)
+                return @bot.say "#{user}: " + @str('err-unknown-user', targetName)
 
         result = try
             @catchPokemon user, mon
             @str('action-catch', mon.nature)
         catch err then err
             
-        @say "#{user}: #{mon.fullStr()}! #{result}"
+        @bot.say "#{user}: #{mon.fullStr()}! #{result}"
 
 
     catchPokemon: (user, mon) ->
@@ -454,10 +454,10 @@ class Pokemon extends Module
         return if @notPermitted user
         user = user.name
         unless (team = teams[user.toLowerCase()])? and team.length > 0
-            return @say @str('err-no-team', user) + ' ' + @str('err-catch-usage', '!pm throw')
+            return @bot.say @str('err-no-team', user) + ' ' + @str('err-catch-usage', '!pm throw')
 
         mon = removeRandom team
-        @say @str('action-release', user, mon.fullStr())
+        @bot.say @str('action-release', user, mon.fullStr())
 
 
     # !pm release all
@@ -465,11 +465,11 @@ class Pokemon extends Module
         return if @notPermitted user
         user = user.name
         unless (team = teams[user.toLowerCase()])? and team.length > 0
-            return @say @str('err-no-team', user)
+            return @bot.say @str('err-no-team', user)
 
         namestr = (mon.name for mon in team).join(', ')
         removeAll user
-        @say @str('action-releaseall', user, namestr)
+        @bot.say @str('action-releaseall', user, namestr)
 
 
     # !pm stats
@@ -479,7 +479,7 @@ class Pokemon extends Module
         stats = statsFor user
         {won, lost, draw} = stats
         ratio = ~~((won / (won+lost+draw)) * 100)
-        @say @str('action-stats', user, ratio, won, lost, draw)
+        @bot.say @str('action-stats', user, ratio, won, lost, draw)
 
 
     # !pm top
@@ -487,7 +487,7 @@ class Pokemon extends Module
         return if @notPermitted user
         top = getSortedTopTeams(10)
         topStr = (k[0] + "(" + k[1] + ")" for k in top).join(', ')
-        @say @str('action-top', topStr)
+        @bot.say @str('action-top', topStr)
    
 
     # !pm fight (target)
@@ -496,7 +496,7 @@ class Pokemon extends Module
         user = user.name
 
         unless (target = args[0])?
-            return @say @str('err-usage', '!pm fight <user>')
+            return @bot.say @str('err-usage', '!pm fight <user>')
 
         message = try
             battle = new PokeBattle user, target, (args...) => @str(args...)
@@ -504,7 +504,7 @@ class Pokemon extends Module
             battle.getResult()
         catch err then err
 
-        @say message
+        @bot.say message
         
 
 class PokeBattle
